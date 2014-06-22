@@ -21,6 +21,33 @@ This is a experimental parser to generate Aql Query Strings more easy and is in 
 
 <?php
 
+//SIMPLE QUERIES
+
+    $query1 = new Aql();
+    $query1->query('u', 'users');
+
+    echo $query1->get();
+  // Generate:  FOR u IN users RETURN u
+
+  //WITH filter
+    $query1 = new Aql();
+    $query1->query('u', 'users')->filter('u.yearsOld == 20');
+
+  
+    echo $query1->get();
+/* Generate: 
+    FOR u IN users 
+    FILTER u.yearsOld == 20
+    RETURN u
+*/
+```
+
+* Composite query
+```
+#!php
+
+<?php
+
 namespace triagens\ArangoDb;
 
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
@@ -31,50 +58,44 @@ try {
 
 //SIMPLE QUERIES
 
-    $query1 = new Aql();
-    $query1->query('u', 'users');
-  // Generate:  FOR u IN users RETURN u
-    echo $query1->get();
+    $mainQuery = new Aql();
 
-  //WITH CONDITION
-    $query1 = new Aql();
-    $query1->query('u', 'users')->filter('u.name == @name', ['name'=>'Jhon']);
 
+    $query2 = new Aql();
+    $query2->query('l', 'locations')->filter('u.id == l.id');
+
+    $mainQuery->query('u', 'users')
+              ->subquery($query2) 
+              ->serReturn(['user'=>'u', 'location'=>'l']);
+
+    echo $mainQuery->get();
   /* Generate: 
     FOR u IN users 
-    FILTER u.name == @name
-    RETURN u
+       FOR l IN locations 
+          FILTER u.id == l.id
+    RETURN {"user":u, "location":l}
 */
 
-    echo $query1->get();
+//:::::::::::::::::::::::::::::::::::::::
 
+BIND VARS
 
-    $connection = new Connection($connectionOptions);
-    $statement = new Statement($connection, array(
-                          "query"     => $query1->get(),
-                          "count"     => true,
-                          "batchSize" => 1000,
-                          "bindVars"  => $bindVars,
-                          "sanitize"  => true,
-                      ));
+$filter = new Filter('u.id == @id',['id'=> 19]);
 
-
-
-        $cursor = $statement->execute();
-        var_dump($cursor->getAll());
-
-} catch (ConnectException $e) {
-    print $e . PHP_EOL;
-} catch (ServerException $e) {
-    print $e . PHP_EOL;
-} catch (ClientException $e) {
-    print $e . PHP_EOL;
+if(!empty($myvar['name'])) {
+   $filter->andFilter('u.name == @name',['name'=>$myvar['name']]);
+   //  OR 
+   //  $filter->andFilter('u.name == @name');
+   //  $filter->addParams(['name'=>'jose']);
+   //
 }
+
+ $query3 = new Aql();
+    $query3->query('l', 'locations')
+            ->filter($filter);
 ```
 
-* complex query
-
-* Composite query
+* Using  Statement to run Query
 ```
 #!php
 
