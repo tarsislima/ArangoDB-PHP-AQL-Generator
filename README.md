@@ -48,18 +48,7 @@ This is a experimental parser to generate Aql Query Strings more easy and is in 
 
 <?php
 
-namespace triagens\ArangoDb;
-
-require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
-
-
-try {
-    $bindVars = [];
-
-//SIMPLE QUERIES
-
     $mainQuery = new Aql();
-
 
     $query2 = new Aql();
     $query2->query('l', 'locations')->filter('u.id == l.id');
@@ -88,11 +77,15 @@ if(!empty($myvar['name'])) {
    //  $filter->andFilter('u.name == @name');
    //  $filter->addParams(['name'=>'jose']);
    //
+
 }
 
  $query3 = new Aql();
     $query3->query('l', 'locations')
             ->filter($filter);
+
+var_dump($query3->getParams());
+
 ```
 
 * Using  Statement to run Query
@@ -109,7 +102,6 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
 try {
     $bindVars = [];
 
-//SIMPLE QUERIES
 
     $mainQuery = new Aql();
 
