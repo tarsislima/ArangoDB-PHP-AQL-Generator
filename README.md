@@ -100,9 +100,7 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
 
 
 try {
-    $bindVars = [];
-
-
+   
     $mainQuery = new Aql();
 
 
@@ -113,14 +111,16 @@ try {
               ->subquery($query2)
               ->serReturn(['user'=>'u', 'location'=>'l']);
 
+  echo $mainQuery->get();
+
   /* Generate: 
     FOR u IN users 
        FOR l IN locations 
           FILTER u.id == l.id
     RETURN {"user":u, "location":l}
-*/
+  */
 
-    echo $mainQuery->get();
+  
 
 
     $connection = new Connection($connectionOptions);
@@ -128,7 +128,7 @@ try {
                           "query"     => $query1->get(),
                           "count"     => true,
                           "batchSize" => 1000,
-                          "bindVars"  => $bindVars,
+                          "bindVars"  => $mainQuery->getParams(),
                           "sanitize"  => true,
                       ));
 
@@ -147,9 +147,7 @@ try {
 ```
 * Configuration
 * Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+
 
 ### Contribution guidelines ###
 
