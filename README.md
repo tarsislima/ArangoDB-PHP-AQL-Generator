@@ -98,7 +98,6 @@ namespace triagens\ArangoDb;
 
 require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
 
-
 try {
    
     $mainQuery = new Aql();
@@ -120,12 +119,10 @@ try {
     RETURN {"user":u, "location":l}
   */
 
-  
-
 
     $connection = new Connection($connectionOptions);
     $statement = new Statement($connection, array(
-                          "query"     => $query1->get(),
+                          "query"     => $mainQuery->get(),
                           "count"     => true,
                           "batchSize" => 1000,
                           "bindVars"  => $mainQuery->getParams(),
