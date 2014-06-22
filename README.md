@@ -1,9 +1,8 @@
 # README #
 
-AqlParser Beta 
+AqlParser For ArangoDb  [Beta]
 
-This is a experimental parser to generate Aql Queries and is in beta
-don´t use in production
+This is a experimental parser to generate Aql Query Strings more easy and is in beta.Don´t use in production!
 
 ### What is this repository for? ###
 
@@ -13,8 +12,7 @@ don´t use in production
 
 ### How do I get set up? ###
 
-* Summary of set up
- use a Statement Class of Aql Driver to run the query
+*  To run queries use a Statement Class of Arangodb Driver available in [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
 ```
 #!php
@@ -29,20 +27,33 @@ require dirname(__FILE__) . DIRECTORY_SEPARATOR . 'init.php';
 try {
     $bindVars = [];
 
+//SIMPLE QUERY
+
     $query1 = new Aql();
     $query1->query('u', 'users');
-  // returns:  FOR u IN users RETURN u
+  // Generate:  FOR u IN users RETURN u
+    echo $query1->get();
+
+  //WITH CONDITION
+    $query1 = new Aql();
+    $query1->query('u', 'users')->filter('u.name == @name', ['name'=>'Jhon']);
+
+  /* Generate: 
+    FOR u IN users 
+    FILTER
+    RETURN u
+*/
     echo $query1->get();
 
 
     $connection = new Connection($connectionOptions);
     $statement = new Statement($connection, array(
-                                                     "query"     => $query->get(),
-                                                     "count"     => true,
-                                                     "batchSize" => 1000,
-                                                     "bindVars"  => $bindVars,
-                                                     "sanitize"  => true,
-                                                ));
+                          "query"     => $query1->get(),
+                          "count"     => true,
+                          "batchSize" => 1000,
+                          "bindVars"  => $bindVars,
+                          "sanitize"  => true,
+                      ));
 
 
 
@@ -58,7 +69,7 @@ try {
 }
 ```
 
-use /arangoDb
+
 * Configuration
 * Dependencies
 * Database configuration
