@@ -176,6 +176,69 @@ try {
     print $e . PHP_EOL;
 }
 ```
+
+*ex query
+
+```
+#!php
+<?php
+$connection = new Connection($connectionOptions);
+$statement = new Statement($connection, array(
+                          "query"     => '',
+                          "count"     => true,
+                          "batchSize" => 1000,
+                          "sanitize"  => true,
+                      ));
+
+//example 1
+  $mainQuery = new Aql();
+
+  $query2 = new Aql();
+  $query2->query('l', 'locations')->filter('u.id == l.id');
+
+  $mainQuery->query('u', 'users')
+              ->subquery($query2)
+              ->serReturn(['user'=>'u', 'location'=>'l']);
+
+  echo $mainQuery->get();
+ /* Generate this string: 
+    FOR u IN users 
+       FOR l IN locations 
+          FILTER u.id == l.id
+    RETURN {`user`:u, `location`:l}
+  */
+
+//  use
+$statement->setQuery($mainQuery->get());
+$statement->bind($mainQuery->getParams()); 
+
+
+//Example 2 : filter
+
+$mainQuery = new Aql();
+$filter = new Filter('u.id == @id && 1=1',['id'=> 19]);
+
+if(!empty($_POST['name'])) {
+   $filter->andFilter('u.name == @name', ['name'=>$_POST['name']]);
+
+   /*  other way 
+       $filter->andFilter('u.name == @name');
+       $mainQuery->addParams(['name'=>'jose']); 
+   */
+}
+
+
+ $mainQuery->query('u', 'users')
+            ->filter($filter);
+
+
+//  use
+$statement->setQuery($mainQuery->get());
+$statement->bind($mainQuery->getParams());
+
+```
+
+
 * Configuration
 * Dependencies
 
