@@ -14,6 +14,22 @@ This is a experimental parser to generate Aql Query Strings more easy and is in 
 
 * This interface only generates the string of AQL. To run this queries you can use  the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
+### Setup Statement
+```
+#!php
+$connection = new Connection($connectionOptions);
+$statement = new Statement($connection, array(
+                          "query"     => '',
+                          "count"     => true,
+                          "batchSize" => 1000,
+                          "sanitize"  => true,
+                      ));
+
+
+```
+###
+
+
 ### Examples ###
 * Simple query
 ```
@@ -40,6 +56,12 @@ This is a experimental parser to generate Aql Query Strings more easy and is in 
     FILTER u.yearsOld == 20
     RETURN u
 */
+
+//use 
+$statement->setQuery($query1->get());
+$statement->bind($query1->getParams());
+
+
 ```
 
 * Composite query
