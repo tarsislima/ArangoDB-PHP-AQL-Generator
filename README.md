@@ -62,6 +62,8 @@ $statement = new Statement($connection, array(
 $statement->setQuery($query1->get());
 $statement->bind($query1->getParams());
 
+$cursor = $statement->execute();
+
 
 ```
 
@@ -88,6 +90,12 @@ $statement->bind($query1->getParams());
     RETURN {"user":u, "location":l}
 */
 
+//use 
+
+$statement->setQuery($mainQuery->get());
+$statement->bind($mainQuery->getParams());
+
+$cursor = $statement->execute();
 //:::::::::::::::::::::::::::::::::::::::
 
 BIND VARS
@@ -100,14 +108,17 @@ if(!empty($myvar['name'])) {
    //  $filter->andFilter('u.name == @name');
    //  $filter->addParams(['name'=>'jose']);
    //
-
 }
 
  $query3 = new Aql();
     $query3->query('l', 'locations')
             ->filter($filter);
 
-var_dump($query3->getParams());
+
+//use 
+
+$statement->setQuery($query3->get());
+$statement->bind($query3->getParams());
 
 ```
 
