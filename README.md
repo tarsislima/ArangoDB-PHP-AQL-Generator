@@ -17,6 +17,7 @@ This is a experimental parser to generate Aql Query Strings more easy and is in 
 ### Setup Statement
 ```
 #!php
+<?php
 $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
                           "query"     => '',
