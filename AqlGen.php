@@ -1,9 +1,11 @@
 <?php
 
 /**
- * 
+ * Class to generate AQL strings
+ *
+ * @author Tarsis Lima
  */
-class Aql
+class AqlGen
 {
 
     const TYPE_FOR = 'FOR';
@@ -11,15 +13,30 @@ class Aql
     const TYPE_COLLECT = 'COLLECT';
     const TYPE_FILTER = 'FILTER';
 
-    public $for;
-    public $in;
+    protected $for;
+    protected $in;
     //
-    public $inner = [];
-    public $sort;
-    public $limit;
-    public $return;
-    public $params = [];
+    protected $inner = [];
+    protected $sort;
+    protected $limit;
+    protected $return;
+    protected $params = [];
     public $requireReturn = true;
+    protected static $instance = null;
+
+    /**
+     * 
+     * @param type $for
+     * @param type $in
+     * @return type
+     */
+    public static function instance()
+    {
+        if (self::$instance == null) {
+            self::$instance = new self;
+        }
+        return self::$instance;
+    }
 
     /**
      * Build a FOR <var> IN <Expression> 
@@ -39,12 +56,12 @@ class Aql
     /**
      * Add a subquery 
      * 
-     * @param mixed|String|Aql $subquery
-     * @return \Aql
+     * @param mixed|String|AqlGen $subquery
+     * @return \AqlGen
      */
     public function subquery($subquery)
     {
-        if ($subquery instanceof Aql) {
+        if ($subquery instanceof AqlGen) {
             $subquery->requireReturn = false;
         }
         $this->inner[] = [self::TYPE_FOR => $subquery];
@@ -55,8 +72,8 @@ class Aql
      * Add a Let expression
      * 
      * @param String $var de variable name
-     * @param mixed|string|Aql $expression 
-     * @return \Aql
+     * @param mixed|string|AqlGen $expression 
+     * @return \AqlGen
      */
     public function let($var, $expression)
     {
@@ -70,18 +87,18 @@ class Aql
      * @param string $var
      * @param string $expression a atribute name
      * @param string $into variable name to group
-     * @return \Aql
+     * @return \AqlGen
      */
     public function collect($var, $expression, $into = null)
     {
         $this->inner[] = [self::TYPE_COLLECT => [$var, $expression, $into]];
         return $this;
     }
-    
+
     /**
      * Filter query 
      * 
-     * @param mixed|String|Filter  $filterCriteria
+     * @param mixed|String|AqlFilter  $filterCriteria
      * @param Array $params the params that bind to filter 
      * 
      * eg 1 : $aql->filter('u.name == @name', ['name'=>'John']);
@@ -90,7 +107,7 @@ class Aql
      *        
      *         $aql->filter($filter);
      * 
-     * @return \Aql
+     * @return \AqlGen
      */
     public function filter($filterCriteria, $params = [])
     {
@@ -134,16 +151,17 @@ class Aql
                         $type = null;
                         break;
                     case self::TYPE_LET:
-                        if ($expression[1] instanceof Aql) {
+                        if ($expression[1] instanceof AqlGen) {
                             $this->setParams($expression[1]->getParams());
                             $expression[1] = '(' . $expression[1]->get() . ')';
                         }
                         $expression = ' ' . $expression[0] . ' = ' . $expression[1];
                         break;
                     case self::TYPE_COLLECT:
-                        $expression = $expression[0] . ' = ' . $expression[1];
-                        if (!is_null($expression[2])) {
-                            $expression .=' INTO ' . $expression[2];
+                        list($var, $value, $group) =  $expression;
+                        $expression = $var . ' = ' . $value;
+                        if (!is_null($group)) {
+                            $expression .=' INTO ' . $group;
                         }
                         break;
                     case self::TYPE_FILTER:
@@ -265,12 +283,13 @@ class Aql
      * @param array $array
      * @return string
      */
-    public function arrayToList(Array $array)
+    protected function arrayToList(Array $array)
     {
         array_walk($array, function (&$list, $key) {
-                    $list = '"' . $key . '" : ' . $list;
+                    $list = '`' . $key . '` : ' . $list;
                 });
         $listString = implode(', ', $array);
         return $listString;
     }
+
 }

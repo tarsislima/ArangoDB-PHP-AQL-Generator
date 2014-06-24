@@ -1,13 +1,11 @@
 <?php
 
-//namespace AqlParser\Filter;
-
 /**
- * Description of Filter
+ * Class to generate filter conditions
  *
- * @author tarsys
+ * @author Tarsis Lima
  */
-class Filter
+class AqlFilter
 {
     public $params = [];
     public $conditions = [];
@@ -70,7 +68,7 @@ class Filter
                     }
                 }
 
-                if ($condition instanceof Filter) {
+                if ($condition instanceof AqlFilter) {
                     $query .= '(' . $condition->get() . ')';
                 }
             }
