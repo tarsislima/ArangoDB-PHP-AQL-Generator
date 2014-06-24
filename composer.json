@@ -9,9 +9,15 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "dev",
+    
     "require": {
         "php": ">=5.3.0",
-        "triagens/arangodb": "dev-master"
+        "triagens/arangodb": "dev-master",
+        "tarsys/aql-gen": "dev-master"
+    },
+    "autoload": {
+    "psr-0": {
+      "tarsys\\AqlGen": "/"
     }
+  },
 }
