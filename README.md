@@ -40,14 +40,14 @@ $statement = new Statement($connection, array(
 
 //SIMPLE QUERIES
 
-    $query1 = new Aql();
+    $query1 = new AqlGen();
     $query1->query('u', 'users');
 
     echo $query1->get();
   // Generate:  FOR u IN users RETURN u
 
   //WITH filter
-    $query1 = new Aql();
+    $query1 = new AqlGen();
     $query1->query('u', 'users')->filter('u.yearsOld == 20');
 
   
@@ -81,9 +81,9 @@ $statement = new Statement($connection, array(
                       ));
 
 //example 1
-  $mainQuery = new Aql();
+  $mainQuery = new AqlGen();
 
-  $query2 = new Aql();
+  $query2 = new AqlGen();
   $query2->query('l', 'locations')->filter('u.id == l.id');
 
   $mainQuery->query('u', 'users')
@@ -105,8 +105,8 @@ $statement->bind($mainQuery->getParams());
 
 //Example 2 : filter
 
-$mainQuery = new Aql();
-$filter = new Filter('u.id == @id && 1=1',['id'=> 19]);
+$mainQuery = new AqlGen();
+$filter = new AqlFilter('u.id == @id && 1=1',['id'=> 19]);
 
 if(!empty($_POST['name'])) {
    $filter->andFilter('u.name == @name', ['name'=>$_POST['name']]);
