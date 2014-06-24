@@ -1,5 +1,7 @@
 <?php
 
+namespace AqlGen;
+
 /**
  * Class to generate filter conditions
  *

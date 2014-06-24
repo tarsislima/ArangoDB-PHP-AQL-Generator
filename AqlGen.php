@@ -1,5 +1,6 @@
 <?php
 
+namespace AqlGen;
 /**
  * Class to generate AQL strings
  *
@@ -42,9 +43,7 @@ class AqlGen
      * Build a FOR <var> IN <Expression> 
      * 
      * @param string $for alias to the collection or list <var> 
-     * @param mixed|String|Array $inExpression collection name or list
-     * 
-     * if pass an array result in a list like eg: IN ["key1':val1, "key2":val2]
+     * @param string $inExpression collection name 
      */
     public function query($for, $inExpression)
     {
@@ -122,8 +121,7 @@ class AqlGen
      */
     public function get()
     {
-        $query = 'FOR ' . $this->for . $this->getInString();
-
+        $query = $this->getForString();
         $query .= $this->getInnerExpressionsString();
         $query .= $this->getSortString();
         $query .= $this->getLimitString();
@@ -178,14 +176,9 @@ class AqlGen
      * the IN part of query
      * @return type
      */
-    protected function getInString()
+    protected function getForString()
     {
-        if (!is_string($this->in)) {
-            if (is_array($this->in)) {
-                $this->in = '[' . $this->arrayToList($this->in) . ']';
-            }
-        }
-        return ' IN ' . $this->in . " \n";
+        return 'FOR ' . $this->for . ' IN ' . $this->in . " \n";
     }
 
     /**

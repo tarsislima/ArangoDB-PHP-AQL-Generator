@@ -1,0 +1,17 @@
+{
+    "name": "vendor/aql-gen",
+    "description": "AQL string generator for ArangoDb.",
+    "keywords": ["ArangoDb","Arango","AQL"],
+    "authors": [
+        {
+            "name": "tarsis",
+            "homepage": "https://github.com/tarsislima/ArangoDB-PHP-AQL-Generator",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3.0",
+        "triagens/arangodb": "dev-master"
+    }
+}
