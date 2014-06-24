@@ -28,15 +28,14 @@ $statement = new Statement($connection, array(
 
 
 ```
-###
 
 
 ### Examples ###
 * Simple query
 ```
 #!php
-
 <?php
+
  use Aqlgen/AqlGen;
 
 //SIMPLE QUERIES
@@ -68,8 +67,11 @@ $cursor = $statement->execute();
 ```
 
 * Composite query
+
+```
 #!php
 <?php
+
 $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
                           "query"     => '',
