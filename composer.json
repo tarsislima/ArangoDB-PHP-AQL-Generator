@@ -1,6 +1,6 @@
 {
-    "name": "vendor/aql-gen",
-    "description": "AQL string generator for ArangoDb.",
+    "name": "tarsys/aql-gen",
+    "description": "AQL string generator for ArangoDb-PHP. [BETA]",
     "keywords": ["ArangoDb","Arango","AQL"],
     "authors": [
         {

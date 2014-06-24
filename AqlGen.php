@@ -8,7 +8,6 @@ namespace AqlGen;
  */
 class AqlGen
 {
-
     const TYPE_FOR = 'FOR';
     const TYPE_LET = 'LET';
     const TYPE_COLLECT = 'COLLECT';
