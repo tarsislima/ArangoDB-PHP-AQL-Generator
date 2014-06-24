@@ -135,7 +135,7 @@ $statement->bind($mainQuery->getParams());
 
 
 ### Contribution guidelines ###
-To do:
+
 * Writing tests
 * Code review
 * Other guidelines
