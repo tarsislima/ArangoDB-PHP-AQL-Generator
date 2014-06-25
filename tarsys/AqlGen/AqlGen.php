@@ -1,6 +1,6 @@
 <?php
 
-namespace AqlGen;
+namespace tarsys\AqlGen;
 /**
  * Class to generate AQL strings
  *

@@ -17,7 +17,7 @@
     },
     "autoload": {
     "psr-0": {
-      "tarsys\\AqlGen": "src/"
+      "tarsys\\AqlGen": "/"
     }
   }
 }
