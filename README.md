@@ -7,16 +7,16 @@ This is a experimental parser to generate Aql Query Strings and is in beta. DonÂ
 ### What is this repository for? ###
 
 * Quick summary
-* Version 0.2
+* Version 1.0.0
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
-### Important? ###
+### Important ###
 
 * This interface only generates the string of AQL. To run this queries you can use  the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
 ### Setup Statement
 ```
-#!php
+
 <?php
 $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
@@ -33,7 +33,7 @@ $statement = new Statement($connection, array(
 ### Examples ###
 * Simple query
 ```
-#!php
+
 <?php
 
  use tarsys\Aqlgen\AqlGen;
@@ -69,7 +69,7 @@ $cursor = $statement->execute();
 * Composite query
 
 ```
-#!php
+
 <?php
 
 $connection = new Connection($connectionOptions);
