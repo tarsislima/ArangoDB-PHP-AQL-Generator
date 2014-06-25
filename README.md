@@ -14,10 +14,11 @@ This is a experimental parser to generate Aql Query Strings and is in beta. DonÂ
 
 * This interface only generates the string of AQL. To run this queries you can use  the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
-### Setup Statement
+### Setup and basic 
 ```
 
 <?php
+//configure statement
 $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
                           "query"     => '',
@@ -25,6 +26,18 @@ $statement = new Statement($connection, array(
                           "batchSize" => 1000,
                           "sanitize"  => true,
                       ));
+                      
+use tarsys\AqlGen\AqlGen;
+//use tarsys\AqlGen\AqlFilter; // if use filter
+
+  //mount the query
+  $query1 = new AqlGen();
+  $query1->query('u', 'users'); //
+    
+    
+// execute 
+$statement->setQuery($mainQuery->get());
+//$statement->bind($mainQuery->getParams()); //if some params has passed
 
 
 ```
@@ -36,14 +49,12 @@ $statement = new Statement($connection, array(
 
 <?php
 
- use tarsys\Aqlgen\AqlGen;
-
-//SIMPLE QUERIES
+    //SIMPLE QUERIES
 
     $query1 = new AqlGen();
     $query1->query('u', 'users');
 
-    echo $query1->get();
+     echo $query1->get();
   // Generate:  FOR u IN users RETURN u
 
   //WITH filter
@@ -58,29 +69,16 @@ $statement = new Statement($connection, array(
     RETURN u
 */
 
-//use 
-$statement->setQuery($query1->get());
-$statement->bind($query1->getParams());
-
-$cursor = $statement->execute();
-
 ```
 
-* Composite query
+* More examples 
 
 ```
 
 <?php
 
-$connection = new Connection($connectionOptions);
-$statement = new Statement($connection, array(
-                          "query"     => '',
-                          "count"     => true,
-                          "batchSize" => 1000,
-                          "sanitize"  => true,
-                      ));
+//Example 1: subquery
 
-//example 1
   $mainQuery = new AqlGen();
 
   $query2 = new AqlGen();
@@ -98,10 +96,6 @@ $statement = new Statement($connection, array(
     RETURN {`user`:u, `location`:l}
   */
 
-//  use
-$statement->setQuery($mainQuery->get());
-$statement->bind($mainQuery->getParams()); 
-
 
 //Example 2 : filter
 
@@ -109,12 +103,11 @@ use tarsys\Aqlgen\AqlGen;
 use tarsys\Aqlgen\AqlFilter;
 
 $mainQuery = new AqlGen();
-$filter = new AqlFilter('u.id == @id && 1=1',['id'=> 19]);
+$filter = new AqlFilter('u.id == @id && 1=1',['id'=> 19]); 
+$filter->orFilter('u.group == @group', ['group'=>'11']);
+$filter->andFilter('u.name == @name', ['name'=>$_POST['name']]);
 
-if(!empty($_POST['name'])) {
-   $filter->andFilter('u.name == @name', ['name'=>$_POST['name']]);
-
-   /*  other way 
+   /*  other way to pass bind params
        $filter->andFilter('u.name == @name');
        $mainQuery->addParams(['name'=>'jose']); 
    */
@@ -125,9 +118,46 @@ if(!empty($_POST['name'])) {
             ->filter($filter);
 
 
-//  use
-$statement->setQuery($mainQuery->get());
-$statement->bind($mainQuery->getParams());
+
+//Example 3 : LET
+
+
+$mainQuery = new AqlGen();
+
+$mainQuery->query('u', 'users')
+            ->let('myvar', 'hello')
+            ->let('myfriends', AqlGen::instance()->query('f','friends') );
+ 
+ echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       LET  `myvar` = `hello`
+       LET `myfriends` = ( 
+          FOR f IN friends 
+          RETURN f
+        )
+    RETURN u
+  */
+
+
+//Example 4 : COLLECT
+
+$mainQuery = new AqlGen();
+
+$mainQuery->query('u', 'users')
+            ->collect('myvar', 'u.city', 'g');
+
+echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       COLLECT `myvar` = u.city INTO g
+       
+    RETURN u
+  */
+
+
 
 ```
 
