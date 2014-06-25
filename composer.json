@@ -9,10 +9,6 @@
             "role": "Developer"
         }
     ],
-    
-    "require": {
-        "triagens/arangodb": "dev-master"
-    },
     "autoload": {
     "psr-0": {
       "tarsys\\AqlGen": "/"
