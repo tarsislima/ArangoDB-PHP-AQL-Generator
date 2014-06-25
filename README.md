@@ -36,7 +36,7 @@ $statement = new Statement($connection, array(
 #!php
 <?php
 
- use Aqlgen/AqlGen;
+ use tarsys\Aqlgen\AqlGen;
 
 //SIMPLE QUERIES
 
@@ -104,6 +104,9 @@ $statement->bind($mainQuery->getParams());
 
 
 //Example 2 : filter
+
+use tarsys\Aqlgen\AqlGen;
+use tarsys\Aqlgen\AqlFilter;
 
 $mainQuery = new AqlGen();
 $filter = new AqlFilter('u.id == @id && 1=1',['id'=> 19]);
