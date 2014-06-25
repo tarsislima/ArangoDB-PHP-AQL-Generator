@@ -2,6 +2,7 @@
     "name": "tarsys/aql-gen",
     "description": "AQL string generator for ArangoDb-PHP. [BETA]",
     "keywords": ["ArangoDb","Arango","AQL"],
+    "license": "Apache2",
     "authors": [
         {
             "name": "tarsis",
