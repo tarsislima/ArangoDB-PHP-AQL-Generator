@@ -1,34 +1,35 @@
 <?php
 
 namespace tarsys\AqlGen;
+
 /**
- * Class to generate AQL strings
+ * Class to build AQL strings
  *
- * @author Tarsis Lima
+ * @author Társis Lima
  */
 class AqlGen
 {
+
     const TYPE_FOR = 'FOR';
     const TYPE_LET = 'LET';
     const TYPE_COLLECT = 'COLLECT';
     const TYPE_FILTER = 'FILTER';
+    const SORT_ASC = 'ASC';
+    const SORT_DESC = 'DESC';
 
     protected $for;
     protected $in;
-    //
     protected $inner = [];
-    protected $sort;
+    protected $sort = [];
+    protected $skip;
     protected $limit;
     protected $return;
     protected $params = [];
-    public $requireReturn = true;
+    protected $requireReturn = true;
     protected static $instance = null;
 
     /**
-     * 
-     * @param type $for
-     * @param type $in
-     * @return type
+     * Return the actual instance of AqlGen
      */
     public static function instance()
     {
@@ -60,14 +61,14 @@ class AqlGen
     public function subquery($subquery)
     {
         if ($subquery instanceof AqlGen) {
-            $subquery->requireReturn = false;
+            $subquery->RequiredReturn(false);
         }
         $this->inner[] = [self::TYPE_FOR => $subquery];
         return $this;
     }
 
     /**
-     * Add a Let expression
+     * Add a LET expression
      * 
      * @param String $var de variable name
      * @param mixed|string|AqlGen $expression 
@@ -80,7 +81,7 @@ class AqlGen
     }
 
     /**
-     * Add a Collect expression
+     * Add a COLLECT expression
      * 
      * @param string $var
      * @param string $expression a atribute name
@@ -94,16 +95,16 @@ class AqlGen
     }
 
     /**
-     * Filter query 
+     * Filter expression
      * 
      * @param mixed|String|AqlFilter  $filterCriteria
      * @param Array $params the params that bind to filter 
      * 
      * eg 1 : $aql->filter('u.name == @name', ['name'=>'John']);
      * eg 2 : $aql->filter('u.name == @name')->setParams(['name'=>'John']);
-     * eg 3 : $filter  = new Filter('u.name == @name', ['name'=>'John']);
-     *        
-     *         $aql->filter($filter);
+     * 
+     * eg 3 : $filter  = new Filter('u.name == @name', ['name'=>'John']);       
+     *        $aql->filter($filter);
      * 
      * @return \AqlGen
      */
@@ -111,6 +112,32 @@ class AqlGen
     {
         $this->setParams($params);
         $this->inner[] = [self::TYPE_FILTER => $filterCriteria];
+        return $this;
+    }
+
+    /**
+     * Add SORT fields
+     * 
+     * @param mixed|string|array $sort
+     * @param string $direction
+     */
+    public function sort($sort, $direction = self::SORT_ASC)
+    {
+        if (is_array($sort)) {
+            $sort = implode(', ', $sort);
+        }
+        $this->sort[] = $sort . ' ' . $direction;
+    }
+
+    public function skip($skip)
+    {
+        $this->skip = $skip;
+        return $this;
+    }
+
+    public function limit($limit)
+    {
+        $this->limit = $limit;
         return $this;
     }
 
@@ -155,7 +182,7 @@ class AqlGen
                         $expression = ' ' . $expression[0] . ' = ' . $expression[1];
                         break;
                     case self::TYPE_COLLECT:
-                        list($var, $value, $group) =  $expression;
+                        list($var, $value, $group) = $expression;
                         $expression = $var . ' = ' . $value;
                         if (!is_null($group)) {
                             $expression .=' INTO ' . $group;
@@ -165,7 +192,7 @@ class AqlGen
                         break;
                 }
 
-                $query .= $type . ' ' . $expression . "\n";
+                $query .= "\t" . $type . ' ' . $expression . "\n";
             }
         }
         return $query;
@@ -181,35 +208,38 @@ class AqlGen
     }
 
     /**
-     * to implement 
-     * @return type
+     * the SORT part of query
+     * @return string
      */
     protected function getSortString()
     {
         $query = '';
-        if ($this->sort !== null) {
-            $sort = $this->sort;
-
-            if (is_array($this->sort)) {
-                //todo
-            }
-            $query = 'SORT ' . $sort . "\n";
+        if (!empty($this->sort)) {
+            $sort = implode(', ', $this->sort);
+            $query = "\tSORT " . $sort . "\n";
         }
         return $query;
     }
 
     /**
-     * the LIMIT part of query
+     * The LIMIT part of query
      * @return string
      */
     protected function getLimitString()
     {
-        return $this->limit . "\n";
-        ;
+        $str = '';
+        if (!empty($this->limit)) {
+            $str = "\t";
+            if (!empty($this->skip)) {
+                $str .= $this->skip . ' , ';
+            }
+            $str .= $this->limit . "\n";
+        }
+        return $str;
     }
 
     /**
-     * the Return part of query
+     * the RETURN part of query
      * @return string
      */
     protected function getReturnString()
@@ -267,6 +297,14 @@ class AqlGen
     public function setReturn($return)
     {
         $this->return = $return;
+    }
+
+    /**
+     * @param boolean $isRequired
+     */
+    public function RequiredReturn($isRequired = true)
+    {
+        $this->requireReturn = $isRequired;
     }
 
     /**
