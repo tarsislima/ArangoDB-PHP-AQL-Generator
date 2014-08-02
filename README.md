@@ -157,6 +157,21 @@ echo $mainQuery->get();
     RETURN u
   */
 
+//Example 5 : SORT
+
+$mainQuery = new AqlGen();
+
+$mainQuery->query('u', 'users')
+            ->sort('u.activity', AqlGen::SORT_DESC)
+            ->sort(array('u.name','u.created_date')); // asc by default
+
+echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       SORT u.activity DESC, u.name, u.created_date ASC
+    RETURN u
+  */
 
 
 ```
