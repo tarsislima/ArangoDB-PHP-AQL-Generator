@@ -9,7 +9,6 @@ namespace tarsys\AqlGen;
  */
 class AqlGen
 {
-
     const TYPE_FOR = 'FOR';
     const TYPE_LET = 'LET';
     const TYPE_COLLECT = 'COLLECT';
@@ -26,26 +25,14 @@ class AqlGen
     protected $return;
     protected $params = [];
     protected $requireReturn = true;
-    protected static $instance = null;
 
     /**
-     * Return the actual instance of AqlGen
+     * Build a FOR <var> IN <Expression>
+     *
+     * @param string $for alias to the collection or list <var>
+     * @param string $inExpression collection name
      */
-    public static function instance()
-    {
-        if (self::$instance == null) {
-            self::$instance = new self;
-        }
-        return self::$instance;
-    }
-
-    /**
-     * Build a FOR <var> IN <Expression> 
-     * 
-     * @param string $for alias to the collection or list <var> 
-     * @param string $inExpression collection name 
-     */
-    public function query($for, $inExpression)
+    public function __construct($for, $inExpression)
     {
         $this->for = $for;
         $this->in = $inExpression;
@@ -53,8 +40,19 @@ class AqlGen
     }
 
     /**
-     * Add a subquery 
-     * 
+     * Build a FOR <var> IN <Expression>
+     *
+     * @param string $for alias to the collection or list <var>
+     * @param string $inExpression collection name
+     */
+    public static function query($for, $inExpression)
+    {
+        return new self($for, $inExpression);
+    }
+
+    /**
+     * Add a subquery
+     *
      * @param mixed|String|AqlGen $subquery
      * @return \AqlGen
      */
@@ -69,9 +67,9 @@ class AqlGen
 
     /**
      * Add a LET expression
-     * 
+     *
      * @param String $var de variable name
-     * @param mixed|string|AqlGen $expression 
+     * @param mixed|string|AqlGen $expression
      * @return \AqlGen
      */
     public function let($var, $expression)
@@ -82,7 +80,7 @@ class AqlGen
 
     /**
      * Add a COLLECT expression
-     * 
+     *
      * @param string $var
      * @param string $expression a atribute name
      * @param string $into variable name to group
@@ -96,28 +94,36 @@ class AqlGen
 
     /**
      * Filter expression
-     * 
-     * @param mixed|String|AqlFilter  $filterCriteria
-     * @param Array $params the params that bind to filter 
-     * 
+     *
+     * @param string $filterCriteria
+     * @param Array $params the params that bind to filter
+     *
      * eg 1 : $aql->filter('u.name == @name', ['name'=>'John']);
-     * eg 2 : $aql->filter('u.name == @name')->setParams(['name'=>'John']);
-     * 
-     * eg 3 : $filter  = new Filter('u.name == @name', ['name'=>'John']);       
-     *        $aql->filter($filter);
-     * 
+     * eg 2 : $aql->filter('u.name == @name && u.age == @age')->bindParams(['name'=>'John', 'age'=> 20]);
+     *
      * @return \AqlGen
      */
     public function filter($filterCriteria, $params = [])
     {
-        $this->setParams($params);
-        $this->inner[] = [self::TYPE_FILTER => $filterCriteria];
+        $this->addFilter($filterCriteria, $params, AqlFilter::AND_OPERATOR);
+        return $this;
+    }
+
+    /**
+     * Add filter with OR operator
+     * @param string $filterCriteria
+     * @param Array $params the params that bind to filter
+     * @return \AqlGen
+     */
+    public function orFilter($filterCriteria, $params = [])
+    {
+        $this->addFilter($filterCriteria, $params, AqlFilter::OR_OPERATOR);
         return $this;
     }
 
     /**
      * Add SORT fields
-     * 
+     *
      * @param mixed|string|array $sort
      * @param string $direction
      */
@@ -131,18 +137,18 @@ class AqlGen
 
     public function skip($skip)
     {
-        $this->skip = $skip;
+        $this->skip = (int)$skip;
         return $this;
     }
 
     public function limit($limit)
     {
-        $this->limit = $limit;
+        $this->limit = (int)$limit;
         return $this;
     }
 
     /**
-     * The mounted Aql query string 
+     * The mounted Aql query string
      * @return string
      */
     public function get()
@@ -157,7 +163,7 @@ class AqlGen
 
     /**
      * Get expresions in order that are call
-     * 
+     *
      * @return string
      */
     protected function getInnerExpressionsString()
@@ -166,7 +172,6 @@ class AqlGen
         foreach ($this->inner as $expressions) {
             foreach ($expressions as $type => $expression) {
                 if (is_object($expression)) {
-                    $this->setParams($expression->getParams());
                     $expression = $expression->get();
                 }
 
@@ -176,7 +181,7 @@ class AqlGen
                         break;
                     case self::TYPE_LET:
                         if ($expression[1] instanceof AqlGen) {
-                            $this->setParams($expression[1]->getParams());
+                            $this->bindParams($expression[1]->getParams());
                             $expression[1] = '(' . $expression[1]->get() . ')';
                         }
                         $expression = ' ' . $expression[0] . ' = ' . $expression[1];
@@ -184,12 +189,12 @@ class AqlGen
                     case self::TYPE_COLLECT:
                         list($var, $value, $group) = $expression;
                         $expression = $var . ' = ' . $value;
+
                         if (!is_null($group)) {
-                            $expression .=' INTO ' . $group;
+                            $expression .= ' INTO ' . $group;
                         }
                         break;
-                    case self::TYPE_FILTER:
-                        break;
+
                 }
 
                 $query .= "\t" . $type . ' ' . $expression . "\n";
@@ -252,30 +257,31 @@ class AqlGen
         }
 
         if ($this->return !== null) {
-            if (is_array($this->return)) {
-                $this->return = '{' . $this->arrayToList($this->return) . '}';
-            }
             $query .= 'RETURN ' . $this->return;
         }
         return $query;
     }
 
     /**
-     * Set params to bind
-     * @param Array $params Key => values of variables to bind 
+     * Set a list of params to bind
+     *
+     * @param Array $params Key => values of variables to bind
+     * eg: $query->bindParams(array('name' => 'john', 'status' => 'OK'));
      * @return string
      */
-    public function setParams($params)
+    public function bindParams($params)
     {
-        $this->params = array_merge($this->params, $params);
+        if (!empty($params)) {
+            $this->params = array_merge($this->params, $params);
+        }
         return $this;
     }
 
     /**
-     * Set a param to bind
+     * Set a specific param to bind
      * @return string
      */
-    public function addParam($key, $value)
+    public function bindParam($key, $value)
     {
         $this->params[$key] = $value;
         return $this;
@@ -291,7 +297,7 @@ class AqlGen
     }
 
     /**
-     * set a RETURN part of query 
+     * set a RETURN part of query
      * @param type $return
      */
     public function setReturn($return)
@@ -300,6 +306,7 @@ class AqlGen
     }
 
     /**
+     * Set if RETURN operator is required. Optional only in subqueries
      * @param boolean $isRequired
      */
     public function RequiredReturn($isRequired = true)
@@ -308,18 +315,41 @@ class AqlGen
     }
 
     /**
-     * Convert array format to key value with colon separator 
-     * 
-     * @param array $array
-     * @return string
+     * Add filter item
+     * @param String $filterCriteria
+     * @param array $params
+     * @param string $operator
      */
-    protected function arrayToList(Array $array)
+    protected function addFilter($filterCriteria, $params = [], $operator = AqlFilter::AND_OPERATOR)
     {
-        array_walk($array, function (&$list, $key) {
-                    $list = '`' . $key . '` : ' . $list;
-                });
-        $listString = implode(', ', $array);
-        return $listString;
+        $currentFilter = $this->getCurrentIndexFilter();
+        $this->bindParams($params);
+        if (!is_null($currentFilter)) {
+            if ($operator == AqlFilter::AND_OPERATOR) {
+                $currentFilter->andFilter($filterCriteria);
+            } else {
+                $currentFilter->orFilter($filterCriteria);
+            }
+            return;
+        }
+
+        $filterCriteria = new AqlFilter($filterCriteria);
+        $this->inner[] = [self::TYPE_FILTER => $filterCriteria];
     }
 
+    /**
+     * Return the index of filter item if this is last inner item added
+     * @return null|AqlFilter
+     */
+    protected function getCurrentIndexFilter()
+    {
+        if (!empty($this->inner)) {
+            $filter = end($this->inner);
+            $currentIndex = key($this->inner);
+            if (key($filter) == self::TYPE_FILTER) {
+                return $this->inner[$currentIndex][self::TYPE_FILTER];
+            }
+        }
+        return null;
+    }
 }
