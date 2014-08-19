@@ -2,8 +2,6 @@
 
 namespace tarsys\AqlGen;
 
-use triagens\ArangoDb\Exception;
-
 /**
  * Class to generate filter conditions
  *

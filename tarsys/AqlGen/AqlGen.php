@@ -133,6 +133,7 @@ class AqlGen
             $sort = implode(', ', $sort);
         }
         $this->sort[] = $sort . ' ' . $direction;
+        return $this;
     }
 
     public function skip($skip)
@@ -238,7 +239,7 @@ class AqlGen
             if (!empty($this->skip)) {
                 $str .= $this->skip . ' , ';
             }
-            $str .= $this->limit . "\n";
+            $str .= 'LIMIT '.$this->limit . "\n";
         }
         return $str;
     }
@@ -303,6 +304,7 @@ class AqlGen
     public function setReturn($return)
     {
         $this->return = $return;
+        return $this;
     }
 
     /**
@@ -351,5 +353,9 @@ class AqlGen
             }
         }
         return null;
+    }
+
+    public function __toString(){
+        return $this->get();
     }
 }
