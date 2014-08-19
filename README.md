@@ -14,7 +14,7 @@ This is a experimental builder to generate Aql Query Strings and is in beta.
 * This interface only generates the string of AQL. To run this queries you can use  the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
 ### Setup and basic 
-```
+```php
 
 <?php
 //configure statement
@@ -42,7 +42,7 @@ $statement->setQuery($mainQuery->get());
 
 ### Examples ###
 * Simple query
-```
+```php
 
 <?php
 
@@ -69,7 +69,7 @@ $statement->setQuery($mainQuery->get());
 
 * More examples 
 
-```
+```php
 
 <?php
 
