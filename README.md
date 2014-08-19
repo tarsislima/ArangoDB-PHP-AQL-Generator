@@ -15,8 +15,6 @@ This is a experimental builder to generate Aql Query Strings and is in beta.
 
 ### Setup and basic 
 ```php
-
-<?php
 //configure statement
 $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
