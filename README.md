@@ -8,7 +8,6 @@ This is a experimental builder to generate Aql Query Strings and is in beta.
 
 * Quick summary
 * Version 1.1
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### Important ###
 
