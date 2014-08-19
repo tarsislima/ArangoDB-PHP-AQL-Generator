@@ -1,6 +1,6 @@
 {
     "name": "tarsys/aql-gen",
-    "description": "AQL builder for ArangoDb-PHP. [ALFA]",
+    "description": "AQL builder for ArangoDb-PHP. [ALPHA]",
     "keywords": ["ArangoDb","Arango","AQL"],
     "license": "Apache2",
     "authors": [
