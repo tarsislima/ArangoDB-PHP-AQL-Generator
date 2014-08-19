@@ -2,12 +2,12 @@
 
 AQL Generator For ArangoDb-PHP   [Beta]
 
-This is a experimental parser to generate Aql Query Strings and is in beta. Don´t use in production!
+This is a experimental builder to generate Aql Query Strings and is in beta.
 
 ### What is this repository for? ###
 
 * Quick summary
-* Version 1.0.0
+* Version 1.1
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
 ### Important ###
@@ -23,16 +23,14 @@ $connection = new Connection($connectionOptions);
 $statement = new Statement($connection, array(
                           "query"     => '',
                           "count"     => true,
-                          "batchSize" => 1000,
                           "sanitize"  => true,
                       ));
                       
 use tarsys\AqlGen\AqlGen;
-//use tarsys\AqlGen\AqlFilter; // if use filter
 
   //mount the query
-  $query1 = new AqlGen();
-  $query1->query('u', 'users'); //
+  
+  $query1 = AqlGen::query('u', 'users'); 
     
     
 // execute 
@@ -51,15 +49,14 @@ $statement->setQuery($mainQuery->get());
 
     //SIMPLE QUERIES
 
-    $query1 = new AqlGen();
-    $query1->query('u', 'users');
+   $query1 = AqlGen::query('u', 'users'); 
 
      echo $query1->get();
   // Generate:  FOR u IN users RETURN u
 
   //WITH filter
-    $query1 = new AqlGen();
-    $query1->query('u', 'users')->filter('u.yearsOld == 20');
+   
+   $query1 = AqlGen::query('u', 'users')->filter('u.yearsOld == 20');
 
   
     echo $query1->get();
@@ -79,14 +76,12 @@ $statement->setQuery($mainQuery->get());
 
 //Example 1: subquery
 
-  $mainQuery = new AqlGen();
+  $mainQuery = AqlGen::query('u', 'users'); 
 
-  $query2 = new AqlGen();
-  $query2->query('l', 'locations')->filter('u.id == l.id');
+  $locations = AqlGen::query('l', 'locations')->filter('u.id == l.id');
 
-  $mainQuery->query('u', 'users')
-              ->subquery($query2)
-              ->serReturn(['user'=>'u', 'location'=>'l']);
+  $mainQuery->subquery($locations)
+              ->serReturn('{"user": u, "location": l}');
 
   echo $mainQuery->get();
  /* Generate this string: 
@@ -97,43 +92,37 @@ $statement->setQuery($mainQuery->get());
   */
 
 
-//Example 2 : filter
-
-use tarsys\Aqlgen\AqlGen;
-use tarsys\Aqlgen\AqlFilter;
-
-$mainQuery = new AqlGen();
-$filter = new AqlFilter('u.id == @id && 1=1',['id'=> 19]); 
-$filter->orFilter('u.group == @group', ['group'=>'11']);
-$filter->andFilter('u.name == @name', ['name'=>$_POST['name']]);
-
-   /*  other way to pass bind params
-       $filter->andFilter('u.name == @name');
-       $mainQuery->addParams(['name'=>'jose']); 
-   */
-}
+//Example 2 : filter bind variables
 
 
- $mainQuery->query('u', 'users')
-            ->filter($filter);
+$mainQuery = AqlGen::query('u', 'users')->filter('u.id == @id', ['id'=> 19]); 
 
+$mainQuery->filter('u.name == @name && u.age == @age')->bindParams(['name'=> 'jhon', 'age' => 20]);
+$mainQuery->orFilter('u.group == @group')->bindParam('group', 11);
+  
+echo $mainQuery->get();
+/* Generate: 
+    FOR u IN users 
+    FILTER u.id == @id  && u.name == @name && u.age == @age ||  u.group == @group
+    RETURN u
+*/
+
+// USE $mainQuery->getParams(); to retrieve bind params
 
 
 //Example 3 : LET
 
 
-$mainQuery = new AqlGen();
-
-$mainQuery->query('u', 'users')
+$mainQuery = AqlGen::query('u', 'users')
             ->let('myvar', 'hello')
-            ->let('myfriends', AqlGen::instance()->query('f','friends') );
+            ->let('myfriends', AqlGen::query('f','friends') );
  
  echo $mainQuery->get();
  
  /* Generate this string: 
     FOR u IN users 
-       LET  `myvar` = `hello`
-       LET `myfriends` = ( 
+       LET  myvar = `hello`
+       LET  myfriends = ( 
           FOR f IN friends 
           RETURN f
         )
@@ -143,9 +132,7 @@ $mainQuery->query('u', 'users')
 
 //Example 4 : COLLECT
 
-$mainQuery = new AqlGen();
-
-$mainQuery->query('u', 'users')
+$mainQuery = AqlGen::query('u', 'users')
             ->collect('myvar', 'u.city', 'g');
 
 echo $mainQuery->get();
@@ -159,9 +146,7 @@ echo $mainQuery->get();
 
 //Example 5 : SORT
 
-$mainQuery = new AqlGen();
-
-$mainQuery->query('u', 'users')
+$mainQuery = AqlGen::query('u', 'users')
             ->sort('u.activity', AqlGen::SORT_DESC)
             ->sort(array('u.name','u.created_date')); // asc by default
 
