@@ -26,25 +26,18 @@ $statement = new Statement($connection, array(
 use tarsys\AqlGen\AqlGen;
 
   //mount the query
-  
   $query1 = AqlGen::query('u', 'users'); 
     
-    
-// execute 
+//execute 
 $statement->setQuery($mainQuery->get());
 //$statement->bind($mainQuery->getParams()); //if some params has passed
-
-
 ```
 
 
 ### Examples ###
 * Simple query
 ```php
-
-<?php
-
-    //SIMPLE QUERIES
+   //SIMPLE QUERIES
 
    $query1 = AqlGen::query('u', 'users'); 
 
@@ -52,9 +45,7 @@ $statement->setQuery($mainQuery->get());
   // Generate:  FOR u IN users RETURN u
 
   //WITH filter
-   
    $query1 = AqlGen::query('u', 'users')->filter('u.yearsOld == 20');
-
   
     echo $query1->get();
 /* Generate: 
@@ -68,9 +59,6 @@ $statement->setQuery($mainQuery->get());
 * More examples 
 
 ```php
-
-<?php
-
 //Example 1: subquery
 
   $mainQuery = AqlGen::query('u', 'users'); 
@@ -91,7 +79,6 @@ $statement->setQuery($mainQuery->get());
 
 //Example 2 : filter bind variables
 
-
 $mainQuery = AqlGen::query('u', 'users')->filter('u.id == @id', ['id'=> 19]); 
 
 $mainQuery->filter('u.name == @name && u.age == @age')->bindParams(['name'=> 'jhon', 'age' => 20]);
@@ -109,7 +96,6 @@ echo $mainQuery->get();
 
 //Example 3 : LET
 
-
 $mainQuery = AqlGen::query('u', 'users')
             ->let('myvar', 'hello')
             ->let('myfriends', AqlGen::query('f','friends') );
@@ -125,7 +111,6 @@ $mainQuery = AqlGen::query('u', 'users')
         )
     RETURN u
   */
-
 
 //Example 4 : COLLECT
 
@@ -154,8 +139,6 @@ echo $mainQuery->get();
        SORT u.activity DESC, u.name, u.created_date ASC
     RETURN u
   */
-
-
 ```
 
 
