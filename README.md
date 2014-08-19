@@ -87,7 +87,7 @@ $mainQuery->orFilter('u.group == @group')->bindParam('group', 11);
 echo $mainQuery->get();
 /* Generate: 
     FOR u IN users 
-    FILTER u.id == @id  && u.name == @name && u.age == @age ||  u.group == @group
+       FILTER u.id == @id  && u.name == @name && u.age == @age ||  u.group == @group
     RETURN u
 */
 
@@ -122,7 +122,6 @@ echo $mainQuery->get();
  /* Generate this string: 
     FOR u IN users 
        COLLECT `myvar` = u.city INTO g
-       
     RETURN u
   */
 
