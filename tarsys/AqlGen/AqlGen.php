@@ -47,7 +47,8 @@ class AqlGen
      */
     public static function query($for, $inExpression)
     {
-        return new self($for, $inExpression);
+        $self = new self($for, $inExpression);
+        return $self;
     }
 
     /**
@@ -56,11 +57,10 @@ class AqlGen
      * @param mixed|String|AqlGen $subquery
      * @return \AqlGen
      */
-    public function subquery($subquery)
+    public function subquery(AqlGen $subquery)
     {
-        if ($subquery instanceof AqlGen) {
-            $subquery->RequiredReturn(false);
-        }
+        $subquery->RequiredReturn(false);
+        $this->bindParams($subquery->getParams());
         $this->inner[] = [self::TYPE_FOR => $subquery];
         return $this;
     }
@@ -74,6 +74,9 @@ class AqlGen
      */
     public function let($var, $expression)
     {
+        if ($expression instanceof AqlGen) {
+            $this->bindParams($expression->getParams());
+        }
         $this->inner[] = [self::TYPE_LET => [$var, $expression]];
         return $this;
     }
@@ -100,6 +103,9 @@ class AqlGen
      *
      * eg 1 : $aql->filter('u.name == @name', ['name'=>'John']);
      * eg 2 : $aql->filter('u.name == @name && u.age == @age')->bindParams(['name'=>'John', 'age'=> 20]);
+     * eg 3 : $filter = new AqlFilter();
+     *        $filter->filter('u.name == @name')->bindParams(['name' => 'John']);
+     * $aql->filter($filter);
      *
      * @return \AqlGen
      */
@@ -172,21 +178,24 @@ class AqlGen
         $query = '';
         foreach ($this->inner as $expressions) {
             foreach ($expressions as $type => $expression) {
-                if (is_object($expression)) {
-                    $expression = $expression->get();
-                }
 
                 switch ($type) {
                     case self::TYPE_FOR:
                         $type = null;
+                        $expression = $expression->get();
                         break;
+
+                    case self::TYPE_FILTER:
+                        $expression = $expression->get();
+                        break;
+
                     case self::TYPE_LET:
                         if ($expression[1] instanceof AqlGen) {
-                            $this->bindParams($expression[1]->getParams());
                             $expression[1] = '(' . $expression[1]->get() . ')';
                         }
                         $expression = ' ' . $expression[0] . ' = ' . $expression[1];
                         break;
+
                     case self::TYPE_COLLECT:
                         list($var, $value, $group) = $expression;
                         $expression = $var . ' = ' . $value;
@@ -195,7 +204,6 @@ class AqlGen
                             $expression .= ' INTO ' . $group;
                         }
                         break;
-
                 }
 
                 $query .= "\t" . $type . ' ' . $expression . "\n";
@@ -239,7 +247,7 @@ class AqlGen
             if (!empty($this->skip)) {
                 $str .= $this->skip . ' , ';
             }
-            $str .= 'LIMIT '.$this->limit . "\n";
+            $str .= 'LIMIT ' . $this->limit . "\n";
         }
         return $str;
     }
@@ -303,6 +311,9 @@ class AqlGen
      */
     public function setReturn($return)
     {
+        if ($this->requireReturn == false) {
+            throw new InvalidArgumentException('A subquery not should have a RETURN expression.');
+        }
         $this->return = $return;
         return $this;
     }
@@ -318,24 +329,32 @@ class AqlGen
 
     /**
      * Add filter item
-     * @param String $filterCriteria
+     * @param String | AqlFilter $filterCriteria
      * @param array $params
      * @param string $operator
      */
     protected function addFilter($filterCriteria, $params = [], $operator = AqlFilter::AND_OPERATOR)
     {
+        if (!$filterCriteria instanceof AqlFilter) {
+            $filterCriteria = new AqlFilter($filterCriteria);
+            if (!empty($params)) {
+                $filterCriteria->bindParams($params);
+            }
+        }
+
         $currentFilter = $this->getCurrentIndexFilter();
-        $this->bindParams($params);
+        $this->bindParams($filterCriteria->getParams());
+
         if (!is_null($currentFilter)) {
+            $criteria = $filterCriteria->get();
             if ($operator == AqlFilter::AND_OPERATOR) {
-                $currentFilter->andFilter($filterCriteria);
+                $currentFilter->andFilter($criteria);
             } else {
-                $currentFilter->orFilter($filterCriteria);
+                $currentFilter->orFilter($criteria);
             }
             return;
         }
 
-        $filterCriteria = new AqlFilter($filterCriteria);
         $this->inner[] = [self::TYPE_FILTER => $filterCriteria];
     }
 
@@ -355,7 +374,8 @@ class AqlGen
         return null;
     }
 
-    public function __toString(){
+    public function __toString()
+    {
         return $this->get();
     }
 }
