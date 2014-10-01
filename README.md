@@ -11,7 +11,7 @@ This is a experimental builder to generate Aql Query Strings and is in alpha ver
 
 ### Important ###
 
-* This interface only generates the string of AQL. To run this queries you can use  the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
+* This interface only generates the string of AQL. To run this queries in this examples was used the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
 ### Setup and basic 
 ```php
