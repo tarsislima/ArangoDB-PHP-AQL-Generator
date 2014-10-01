@@ -9,11 +9,11 @@ This is a experimental builder to generate Aql Query Strings and is in alpha ver
 * Quick summary
 * Version 1.1a
 
-### Important ###
-
-* This interface only generates the string of AQL. To run this queries in this examples was used the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
 
 ### Setup and basic 
+
+ To run the queries in this examples was used the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
+
 ```php
 //configure statement
 $connection = new Connection($connectionOptions);
