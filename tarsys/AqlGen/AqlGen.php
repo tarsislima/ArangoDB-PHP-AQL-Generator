@@ -319,32 +319,53 @@ class AqlGen
      */
     public function setReturn($return)
     {
-        $this->setOperation($return);
+        $this->setOperationReturn($return);
         return $this;
     }
 
-    public function insert($document = null,  $collection = null)
+    public function insert($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_INSERT;
-        $this->setOperation($document, $collection);
+        $this->setCollectionOperation($document, $collection);
     }
 
-    public function update($data, $document = null,  $collection = null)
+    public function update($data, $document = null, $collection = null)
     {
         $this->operation = self::OPERATION_UPDATE;
-        $this->setOperation($document, $data, $collection);
+        $this->setCollectionOperation($document, $collection, $data);
     }
 
-    public function replace($document = null,  $collection = null)
+    public function replace($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_REPLACE;
-        $this->setOperation($document, $collection);
+        $this->setCollectionOperation($document, $collection);
     }
 
-    public function delete($document = null,  $collection = null)
+    public function delete($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_DELETE;
-        $this->setOperation($document, $collection);
+        $this->setCollectionOperation($document, $collection);
+    }
+
+    /**
+     * Set operation over current query
+     * @param null $document
+     * @param null $collection
+     * @return \tarsys\AqlGen\AqlGen
+     */
+    protected function setCollectionOperation($document = null, $collection = null, $with = null)
+    {
+        if (is_null($document)) {
+            $document = $this->for;
+        }
+        if (!is_null($with)) {
+            $with = 'WITH ' . $with;
+        }
+        if (is_null($collection)) {
+            $collection = $this->in;
+        }
+        $return = $document . " {$with} IN " . $collection;
+        return $this->setOperationReturn($return);
     }
 
     /**
@@ -355,19 +376,13 @@ class AqlGen
      * @throws InvalidArgumentException
      * @return $this
      */
-    protected function setOperation($document = null, $with = null, $collection = null)
+    protected function setOperationReturn($return)
     {
         if ($this->isSubquery == false) {
             throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
         }
-        if (is_null($document)) {
-            $document = $this->for;
-        }
-        if (is_null($collection)) {
-            $collection = $this->in;
-        }
 
-        $this->return = $this->operation . " {$document} {$with} {$collection}";
+        $this->return = $this->operation . ' ' . $return;
         return $this;
     }
 
