@@ -9,12 +9,20 @@ namespace tarsys\AqlGen;
  */
 class AqlGen
 {
+    /** Command Types constants */
     const TYPE_FOR = 'FOR';
     const TYPE_LET = 'LET';
     const TYPE_COLLECT = 'COLLECT';
     const TYPE_FILTER = 'FILTER';
     const SORT_ASC = 'ASC';
     const SORT_DESC = 'DESC';
+
+    /** Operation Types constants */
+    const OPERATION_RETURN = 'RETURN';
+    const OPERATION_INSERT = 'INSERT';
+    const OPERATION_UPDATE = 'UPDATE';
+    const OPERATION_REPLACE = 'REPLACE';
+    const OPERATION_DELETE = 'DELETE';
 
     protected $for;
     protected $in;
@@ -24,7 +32,9 @@ class AqlGen
     protected $limit;
     protected $return;
     protected $params = [];
-    protected $requireReturn = true;
+    protected $isSubQuery = false;
+
+    protected $operation = self::OPERATION_RETURN;
 
     /**
      * Build a FOR <var> IN <Expression>
@@ -44,6 +54,7 @@ class AqlGen
      *
      * @param string $for alias to the collection or list <var>
      * @param string $inExpression collection name
+     * @return \tarsys\AqlGen\AqlGen
      */
     public static function query($for, $inExpression)
     {
@@ -59,7 +70,7 @@ class AqlGen
      */
     public function subquery(AqlGen $subquery)
     {
-        $subquery->RequiredReturn(false);
+        $subquery->setSubquery();
         $this->bindParams($subquery->getParams());
         $this->inner[] = [self::TYPE_FOR => $subquery];
         return $this;
@@ -258,17 +269,13 @@ class AqlGen
      */
     protected function getReturnString()
     {
-        $query = '';
-        if ($this->requireReturn) {
+        if ($this->isSubquery) {
             if (is_null($this->return)) {
                 $this->return = $this->for;
             }
         }
 
-        if ($this->return !== null) {
-            $query .= 'RETURN ' . $this->return;
-        }
-        return $query;
+        return $this->return;
     }
 
     /**
@@ -308,23 +315,70 @@ class AqlGen
     /**
      * set a RETURN part of query
      * @param type $return
+     * @return $this
      */
     public function setReturn($return)
     {
-        if ($this->requireReturn == false) {
-            throw new InvalidArgumentException('A subquery not should have a RETURN expression.');
+        $this->setOperation($return);
+        return $this;
+    }
+
+    public function insert($document = null,  $collection = null)
+    {
+        $this->operation = self::OPERATION_INSERT;
+        $this->setOperation($document, $collection);
+    }
+
+    public function update($data, $document = null,  $collection = null)
+    {
+        $this->operation = self::OPERATION_UPDATE;
+        $this->setOperation($document, $data, $collection);
+    }
+
+    public function replace($document = null,  $collection = null)
+    {
+        $this->operation = self::OPERATION_REPLACE;
+        $this->setOperation($document, $collection);
+    }
+
+    public function delete($document = null,  $collection = null)
+    {
+        $this->operation = self::OPERATION_DELETE;
+        $this->setOperation($document, $collection);
+    }
+
+    /**
+     * set a Operation type as string
+     * @param string $document document to modify - default current document
+     * @param string(json without embraces) $with data to modify
+     * @param string $collection collection to perform modification
+     * @throws InvalidArgumentException
+     * @return $this
+     */
+    protected function setOperation($document = null, $with = null, $collection = null)
+    {
+        if ($this->isSubquery == false) {
+            throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
         }
-        $this->return = $return;
+        if (is_null($document)) {
+            $document = $this->for;
+        }
+        if (is_null($collection)) {
+            $collection = $this->in;
+        }
+
+        $this->return = $this->operation . " {$document} {$with} {$collection}";
         return $this;
     }
 
     /**
      * Set if RETURN operator is required. Optional only in subqueries
      * @param boolean $isRequired
+     * @todo refactory doc
      */
-    public function RequiredReturn($isRequired = true)
+    public function setSubquery()
     {
-        $this->requireReturn = $isRequired;
+        $this->isSubquery = true;
     }
 
     /**
