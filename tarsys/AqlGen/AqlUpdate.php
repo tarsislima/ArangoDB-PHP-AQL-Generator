@@ -15,7 +15,7 @@ class AqlUpdate
     protected $collection;
     protected $data = null;
 
-    public function __construct($document, $collection, $data)
+    public function __construct($document, $collection, Array $data)
     {
         $this->document = $document;
         $this->collection = $collection;
@@ -24,6 +24,11 @@ class AqlUpdate
 
     public function get()
     {
+        if(is_array($this->document)) {
+            $this->document = json_encode($this->document);
+        }
+        $this->data = json_encode($this->data);
+
         return Self::OPERATOR . " {$this->document} WITH {$this->data} IN {$this->collection}";
     }
 }

@@ -327,14 +327,31 @@ class AqlGen
 
     public function insert($document = null, $collection = null)
     {
-        $this->operation = self::OPERATION_INSERT;
-        return $this->setCollectionOperation($document, $collection);
-
+        if (is_null($document)) {
+            $document = $this->for;
+        }
+        if (is_null($collection)) {
+            $collection = $this->in;
+        }
+        $this->return = new AqlInsert($document, $collection);
+        return $this;
     }
 
+    /**
+     * @param $data
+     * @param null $document
+     * @param null $collection
+     * @return AqlGen
+     */
     public function update($data, $document = null, $collection = null)
     {
-        $this->operation = self::OPERATION_UPDATE;
+        if (is_null($document)) {
+            $document = $this->for;
+        }
+        if (is_null($collection)) {
+            $collection = $this->in;
+        }
+        $this->return = new AqlUpdate($document, $collection, $data);
         return $this->setCollectionOperation($document, $collection, $data);
     }
 
@@ -360,9 +377,6 @@ class AqlGen
     {
         if (is_null($document)) {
             $document = $this->for;
-        }
-        if (!is_null($with)) {
-            $with = 'WITH ' . $with;
         }
         if (is_null($collection)) {
             $collection = $this->in;
