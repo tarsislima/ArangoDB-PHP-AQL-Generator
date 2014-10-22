@@ -2,6 +2,8 @@
 
 namespace tarsys\AqlGen;
 
+use InvalidArgumentException;
+
 /**
  * Class to build AQL strings
  *
@@ -269,7 +271,7 @@ class AqlGen
      */
     protected function getReturnString()
     {
-        if ($this->isSubquery) {
+        if (!$this->isSubQuery) {
             if (is_null($this->return)) {
                 $this->return = $this->for;
             }
@@ -326,25 +328,26 @@ class AqlGen
     public function insert($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_INSERT;
-        $this->setCollectionOperation($document, $collection);
+        return $this->setCollectionOperation($document, $collection);
+
     }
 
     public function update($data, $document = null, $collection = null)
     {
         $this->operation = self::OPERATION_UPDATE;
-        $this->setCollectionOperation($document, $collection, $data);
+        return $this->setCollectionOperation($document, $collection, $data);
     }
 
     public function replace($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_REPLACE;
-        $this->setCollectionOperation($document, $collection);
+        return $this->setCollectionOperation($document, $collection);
     }
 
     public function delete($document = null, $collection = null)
     {
         $this->operation = self::OPERATION_DELETE;
-        $this->setCollectionOperation($document, $collection);
+        return $this->setCollectionOperation($document, $collection);
     }
 
     /**
@@ -378,7 +381,7 @@ class AqlGen
      */
     protected function setOperationReturn($return)
     {
-        if ($this->isSubquery == false) {
+        if ($this->isSubQuery == true && $this->operation != self::OPERATION_RETURN) {
             throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
         }
 
@@ -393,7 +396,7 @@ class AqlGen
      */
     public function setSubquery()
     {
-        $this->isSubquery = true;
+        $this->isSubQuery = true;
     }
 
     /**
