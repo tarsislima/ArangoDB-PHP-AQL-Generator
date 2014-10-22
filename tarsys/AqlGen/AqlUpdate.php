@@ -24,6 +24,6 @@ class AqlUpdate
 
     public function get()
     {
-        return self::OPERATOR . " {$this->document} WITH {$this->data} IN {$this->collection}";
+        return Self::OPERATOR . " {$this->document} WITH {$this->data} IN {$this->collection}";
     }
 }

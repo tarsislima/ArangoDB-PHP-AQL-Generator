@@ -22,6 +22,9 @@ class AqlInsert
 
     public function get()
     {
-        return Self::OPERATOR . " {$this->document} IN {$this->collection}";
+        if(is_array($this->document)) {
+            $this->document = json_encode($this->document);
+        }
+        return self::OPERATOR . " {$this->document} IN {$this->collection}";
     }
 }
