@@ -9,7 +9,7 @@ use InvalidArgumentException;
  *
  * @author Társis Lima
  */
-class AqlGen
+class AqlGen extends AbstractAql
 {
     /** Command Types constants */
     const TYPE_FOR = 'FOR';
@@ -25,6 +25,7 @@ class AqlGen
     const OPERATION_UPDATE = 'UPDATE';
     const OPERATION_REPLACE = 'REPLACE';
     const OPERATION_DELETE = 'DELETE';
+
 
     protected $for;
     protected $in;
@@ -219,7 +220,7 @@ class AqlGen
                         break;
                 }
 
-                $query .= "\t" . $type . ' ' . $expression . "\n";
+                $query .= self::TAB_SEPARATOR . $type . ' ' . $expression . self::LINE_SEPARATOR;
             }
         }
         return $query;
@@ -231,7 +232,7 @@ class AqlGen
      */
     protected function getForString()
     {
-        return 'FOR ' . $this->for . ' IN ' . $this->in . " \n";
+        return "FOR {$this->for} IN {$this->in} " . self::LINE_SEPARATOR;
     }
 
     /**
@@ -243,7 +244,7 @@ class AqlGen
         $query = '';
         if (!empty($this->sort)) {
             $sort = implode(', ', $this->sort);
-            $query = "\tSORT " . $sort . "\n";
+            $query = self::TAB_SEPARATOR . "SORT " . $sort . self::LINE_SEPARATOR;
         }
         return $query;
     }
@@ -256,11 +257,11 @@ class AqlGen
     {
         $str = '';
         if (!empty($this->limit)) {
-            $str = "\t";
+            $str = self::TAB_SEPARATOR;
             if (!empty($this->skip)) {
                 $str .= $this->skip . ' , ';
             }
-            $str .= 'LIMIT ' . $this->limit . "\n";
+            $str .= 'LIMIT ' . $this->limit . self::LINE_SEPARATOR;
         }
         return $str;
     }
@@ -334,6 +335,7 @@ class AqlGen
             $collection = $this->in;
         }
         $this->return = new AqlInsert($document, $collection);
+        $this->checkOperationReturn();
         return $this;
     }
 
@@ -352,13 +354,15 @@ class AqlGen
             $collection = $this->in;
         }
         $this->return = new AqlUpdate($document, $collection, $data);
-        return $this->setCollectionOperation($document, $collection, $data);
+        $this->checkOperationReturn();
+        return $this;
     }
 
     public function replace($document = null, $collection = null)
     {
-        $this->operation = self::OPERATION_REPLACE;
-        return $this->setCollectionOperation($document, $collection);
+        $this->return = new AqlReplace($document, $collection);
+        $this->checkOperationReturn();
+        return $this;
     }
 
     public function delete($document = null, $collection = null)
@@ -393,13 +397,11 @@ class AqlGen
      * @throws InvalidArgumentException
      * @return $this
      */
-    protected function setOperationReturn($return)
+    private function checkOperationReturn()
     {
-        if ($this->isSubQuery == true && $this->operation != self::OPERATION_RETURN) {
+        if ($this->isSubQuery == true && !$this->return instanceof AqlReturn) {
             throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
         }
-
-        //$this->return = $this->operation . ' ' . $return;
         return $this;
     }
 

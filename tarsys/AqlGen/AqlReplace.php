@@ -3,13 +3,13 @@
 namespace tarsys\AqlGen;
 
 /**
- * Class to implement INSERT Operation
+ * Class to implement REPLACE Operation
  *
  * @author Tarsis Lima
  */
-class AqlInsert extends AbstractAql
+class AqlReplace extends AbstractAql
 {
-    const OPERATOR = 'INSERT';
+    const OPERATOR = 'UPDATE';
 
     protected $document;
     protected $collection;
@@ -22,9 +22,10 @@ class AqlInsert extends AbstractAql
 
     public function get()
     {
-        if(is_array($this->document)) {
+        if (is_array($this->document)) {
             $this->document = json_encode($this->document);
         }
-        return self::OPERATOR . " {$this->document} IN {$this->collection}";
+
+        return self::OPERATOR . " {$this->document} WITH {$this->data} IN {$this->collection}";
     }
 }

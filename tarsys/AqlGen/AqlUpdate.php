@@ -7,7 +7,7 @@ namespace tarsys\AqlGen;
  *
  * @author Tarsis Lima
  */
-class AqlUpdate
+class AqlUpdate extends AbstractAql
 {
     const OPERATOR = 'UPDATE';
 

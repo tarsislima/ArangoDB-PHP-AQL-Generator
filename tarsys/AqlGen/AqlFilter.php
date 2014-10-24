@@ -7,7 +7,7 @@ namespace tarsys\AqlGen;
  *
  * @author Tarsis Lima
  */
-class AqlFilter
+class AqlFilter extends AbstractAql
 {
     public $conditions = [];
 

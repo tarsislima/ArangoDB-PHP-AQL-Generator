@@ -7,7 +7,7 @@ namespace tarsys\AqlGen;
  *
  * @author Tarsis Lima
  */
-class AqlReturn
+class AqlReturn extends AbstractAql
 {
     const OPERATOR = 'RETURN';
 
