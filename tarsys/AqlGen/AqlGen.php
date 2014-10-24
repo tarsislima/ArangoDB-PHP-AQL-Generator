@@ -273,11 +273,11 @@ class AqlGen
     {
         if (!$this->isSubQuery) {
             if (is_null($this->return)) {
-                $this->return = $this->for;
+                $this->return = new AqlReturn($this->for);
             }
         }
 
-        return $this->return;
+        return $this->return->get();
     }
 
     /**
@@ -321,7 +321,7 @@ class AqlGen
      */
     public function setReturn($return)
     {
-        $this->setOperationReturn($return);
+        $this->return = new AqlReturn($return);
         return $this;
     }
 
@@ -399,7 +399,7 @@ class AqlGen
             throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
         }
 
-        $this->return = $this->operation . ' ' . $return;
+        //$this->return = $this->operation . ' ' . $return;
         return $this;
     }
 
