@@ -232,7 +232,7 @@ class AqlGen extends AbstractAql
      */
     protected function getForString()
     {
-        return "FOR {$this->for} IN {$this->in} " . self::LINE_SEPARATOR;
+        return "FOR {$this->for} IN {$this->in}" . self::LINE_SEPARATOR;
     }
 
     /**
@@ -259,7 +259,7 @@ class AqlGen extends AbstractAql
         if (!empty($this->limit)) {
             $str = self::TAB_SEPARATOR;
             if (!empty($this->skip)) {
-                $str .= $this->skip . ' , ';
+                $this->limit = $this->skip . ', ' . $this->limit;
             }
             $str .= 'LIMIT ' . $this->limit . self::LINE_SEPARATOR;
         }
@@ -272,10 +272,20 @@ class AqlGen extends AbstractAql
      */
     protected function getReturnString()
     {
-        if (!$this->isSubQuery) {
+        /*if (!$this->isSubQuery) {
             if (is_null($this->return)) {
-                $this->return = new AqlReturn($this->for);
+               $this->setReturn($this->for);
             }
+        }*/
+
+        if ($this->isSubQuery) {
+            if (is_null($this->return)) {
+                return '';
+            }
+        }
+
+        if (is_null($this->return)) {
+            $this->setReturn($this->for);
         }
 
         return $this->return->get();
@@ -317,7 +327,7 @@ class AqlGen extends AbstractAql
 
     /**
      * set a RETURN part of query
-     * @param type $return
+     * @params string|array $return
      * @return $this
      */
     public function setReturn($return)

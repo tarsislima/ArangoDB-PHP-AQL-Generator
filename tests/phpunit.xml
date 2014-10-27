@@ -1,0 +1,19 @@
+<phpunit bootstrap="bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="false">
+
+    <selenium>
+        <!--browser name="Internet Explorer" browser="*iexplore" /-->
+        <!--browser name="Firefox" browser="*firefox" /0-->
+        <browser name="Google Chrome" browser="*googlechrome "/>
+    </selenium>
+
+    <testsuites>
+        <testsuite name="api-unidadedigital">
+            <directory>UnidadeDigital/Test/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
