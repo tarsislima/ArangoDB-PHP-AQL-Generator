@@ -9,7 +9,7 @@ use tarsys\AqlGen\AbstractAql;
  *
  * @author Tarsis Lima
  */
-class AqlFilter extends AbstractAql
+class Filter extends AbstractAql
 {
     const OPERATOR = 'FILTER';
 
@@ -24,7 +24,6 @@ class AqlFilter extends AbstractAql
      * Add a first condition
      *
      * @param string $condition
-     * @param Array $params
      */
     public function __construct($condition = null)
     {
@@ -36,6 +35,7 @@ class AqlFilter extends AbstractAql
     /**
      * Alias to andCondition
      * @param $condition
+     * @return $this
      */
     public function filter($condition)
     {
@@ -46,7 +46,7 @@ class AqlFilter extends AbstractAql
      * Add filter with AND operator
      *
      * @param string $condition
-     * @param Array $params
+     * @return $this
      */
     public function andFilter($condition)
     {
@@ -61,7 +61,7 @@ class AqlFilter extends AbstractAql
      * Add filter with OR operator
      *
      * @param string $condition
-     * @param array $params
+     * @return $this
      */
     public function orFilter($condition)
     {

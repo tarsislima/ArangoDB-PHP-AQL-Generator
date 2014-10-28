@@ -5,7 +5,7 @@ namespace tarsys\AqlGen;
 use InvalidArgumentException;
 use tarsys\AqlGen\InnerOperations\Collect;
 use tarsys\AqlGen\InnerOperations\Let;
-use tarsys\AqlGen\InnerOperations\AqlFilter;
+
 
 /**
  * Class to build AQL strings
@@ -196,7 +196,6 @@ class AqlGen extends AbstractAql
         $query = '';
         foreach ($this->inner as $expressions) {
             foreach ($expressions as $type => $expression) {
-                $expression = $expression->get();
                 $query .= self::TAB_SEPARATOR . $expression->get();
             }
         }

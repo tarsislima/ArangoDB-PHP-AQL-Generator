@@ -4,7 +4,7 @@ namespace tests\tarsys;
 
 use PHPUnit_Framework_TestCase;
 use tarsys\AqlGen\AqlGen;
-use tarsys\AqlGen\InnerOperations\AqlFilter;
+use tarsys\AqlGen\AqlFilter;
 
 /**
  * Class to build AQL strings
