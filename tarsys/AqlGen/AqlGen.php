@@ -3,6 +3,9 @@
 namespace tarsys\AqlGen;
 
 use InvalidArgumentException;
+use tarsys\AqlGen\InnerOperations\Collect;
+use tarsys\AqlGen\InnerOperations\Let;
+use tarsys\AqlGen\InnerOperations\AqlFilter;
 
 /**
  * Class to build AQL strings
@@ -91,7 +94,8 @@ class AqlGen extends AbstractAql
         if ($expression instanceof AqlGen) {
             $this->bindParams($expression->getParams());
         }
-        $this->inner[] = [self::TYPE_LET => [$var, $expression]];
+
+        $this->inner[] = [self::TYPE_LET => new Let($var, $expression)];
         return $this;
     }
 
@@ -105,7 +109,7 @@ class AqlGen extends AbstractAql
      */
     public function collect($var, $expression, $into = null)
     {
-        $this->inner[] = [self::TYPE_COLLECT => [$var, $expression, $into]];
+        $this->inner[] = [self::TYPE_COLLECT => new Collect($var, $expression, $into)];
         return $this;
     }
 
@@ -192,35 +196,8 @@ class AqlGen extends AbstractAql
         $query = '';
         foreach ($this->inner as $expressions) {
             foreach ($expressions as $type => $expression) {
-
-                switch ($type) {
-                    case self::TYPE_FOR:
-                        $type = null;
-                        $expression = $expression->get();
-                        break;
-
-                    case self::TYPE_FILTER:
-                        $expression = $expression->get();
-                        break;
-
-                    case self::TYPE_LET:
-                        if ($expression[1] instanceof AqlGen) {
-                            $expression[1] = '(' . $expression[1]->get() . ')';
-                        }
-                        $expression = ' ' . $expression[0] . ' = ' . $expression[1];
-                        break;
-
-                    case self::TYPE_COLLECT:
-                        list($var, $value, $group) = $expression;
-                        $expression = $var . ' = ' . $value;
-
-                        if (!is_null($group)) {
-                            $expression .= ' INTO ' . $group;
-                        }
-                        break;
-                }
-
-                $query .= self::TAB_SEPARATOR . $type . ' ' . $expression . self::LINE_SEPARATOR;
+                $expression = $expression->get();
+                $query .= self::TAB_SEPARATOR . $expression->get();
             }
         }
         return $query;
@@ -232,7 +209,8 @@ class AqlGen extends AbstractAql
      */
     protected function getForString()
     {
-        return "FOR {$this->for} IN {$this->in}" . self::LINE_SEPARATOR;
+        $return = "FOR {$this->for} IN {$this->in}" . self::LINE_SEPARATOR;
+        return $return;
     }
 
     /**
@@ -272,15 +250,11 @@ class AqlGen extends AbstractAql
      */
     protected function getReturnString()
     {
-        /*if (!$this->isSubQuery) {
-            if (is_null($this->return)) {
-               $this->setReturn($this->for);
-            }
-        }*/
-
         if ($this->isSubQuery) {
             if (is_null($this->return)) {
                 return '';
+            } else {
+                throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
             }
         }
 
@@ -410,7 +384,7 @@ class AqlGen extends AbstractAql
     private function checkOperationReturn()
     {
         if ($this->isSubQuery == true && !$this->return instanceof AqlReturn) {
-            throw new InvalidArgumentException("A subquery not should have a {$this->operation} expression.");
+            throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
         }
         return $this;
     }
@@ -444,7 +418,7 @@ class AqlGen extends AbstractAql
         $this->bindParams($filterCriteria->getParams());
 
         if (!is_null($currentFilter)) {
-            $criteria = $filterCriteria->get();
+            $criteria = $filterCriteria->getConditionsString();
             if ($operator == AqlFilter::AND_OPERATOR) {
                 $currentFilter->andFilter($criteria);
             } else {
