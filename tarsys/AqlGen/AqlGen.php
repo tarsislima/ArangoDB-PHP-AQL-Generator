@@ -150,6 +150,7 @@ class AqlGen extends AbstractAql
      *
      * @param mixed|string|array $sort
      * @param string $direction
+     * @return $this
      */
     public function sort($sort, $direction = self::SORT_ASC)
     {
@@ -323,41 +324,10 @@ class AqlGen extends AbstractAql
     }
 
     /**
-     * @param $data
-     * @param null $document
-     * @param null $collection
-     * @return AqlGen
-     */
-    public function update($data, $document = null, $collection = null)
-    {
-        if (is_null($document)) {
-            $document = $this->for;
-        }
-        if (is_null($collection)) {
-            $collection = $this->in;
-        }
-        $this->return = new AqlUpdate($document, $collection, $data);
-        $this->checkOperationReturn();
-        return $this;
-    }
-
-    public function replace($document = null, $collection = null)
-    {
-        $this->return = new AqlReplace($document, $collection);
-        $this->checkOperationReturn();
-        return $this;
-    }
-
-    public function delete($document = null, $collection = null)
-    {
-        $this->operation = self::OPERATION_DELETE;
-        return $this->setCollectionOperation($document, $collection);
-    }
-
-    /**
      * Set operation over current query
-     * @param null $document
-     * @param null $collection
+     * @param string $document document to
+     * @param string $collection
+     * @param string $with
      * @return \tarsys\AqlGen\AqlGen
      */
     protected function setCollectionOperation($document = null, $collection = null, $with = null)
@@ -373,11 +343,7 @@ class AqlGen extends AbstractAql
     }
 
     /**
-     * set a Operation type as string
-     * @param string $document document to modify - default current document
-     * @param string(json without embraces) $with data to modify
-     * @param string $collection collection to perform modification
-     * @throws InvalidArgumentException
+     * check if the Operation is valid
      * @return $this
      */
     private function checkOperationReturn()
@@ -390,12 +356,12 @@ class AqlGen extends AbstractAql
 
     /**
      * Set if RETURN operator is required. Optional only in subqueries
-     * @param boolean $isRequired
-     * @todo refactory doc
+     * @return $this
      */
     public function setSubquery()
     {
         $this->isSubQuery = true;
+        return $this;
     }
 
     /**

@@ -89,7 +89,6 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException('InvalidArgumentException', "A subquery not should have a RETURN operation.");
         $aql->get();
-
     }
 
     public function testLetWithVar()
@@ -172,61 +171,5 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('@maxAge', $params);
         $this->assertEquals($params['@maxAge'], 50);
-    }
-
-
-    public function testUpdate()
-    {
-        $aql = AqlGen::query('u', 'users')->filter('u.active = true')
-            ->update("{'name': 'jhon'}");
-        $string = $aql->get();
-
-        $this->assertEquals(
-            "FOR u IN users\n\tFILTER u.active = true\nUPDATE u WITH {'name': 'jhon'} IN users",
-            $string
-        );
-
-        $aql = AqlGen::query('u', 'users')->filter('u.active = true')
-            ->update("{'name': 'jhon'}", '"backup"');
-        $string = $aql->get();
-
-        $this->assertEquals(
-            "FOR u IN users\n\tFILTER u.active = true\nUPDATE \"backup\" WITH {'name': 'jhon'} IN users",
-            $string
-        );
-
-        $aql = AqlGen::query('u', 'users')->filter('u.active = true')
-            ->update("{'name': 'jhon'}", '"backup"', "backups");
-        $string = $aql->get();
-
-        $this->assertEquals(
-            "FOR u IN users\n\tFILTER u.active = true\nUPDATE \"backup\" WITH {'name': 'jhon'} IN backups",
-            $string
-        );
-    }
-
-    public function testBind()
-    {
-
-    }
-
-    public function testCheckOperationReturn()
-    {
-
-    }
-
-    public function testInsert()
-    {
-
-    }
-
-    public function testReplace()
-    {
-
-    }
-
-    public function testDelete()
-    {
-
     }
 }
