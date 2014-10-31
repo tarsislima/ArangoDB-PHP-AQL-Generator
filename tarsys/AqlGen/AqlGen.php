@@ -310,19 +310,6 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
-    public function insert($document = null, $collection = null)
-    {
-        if (is_null($document)) {
-            $document = $this->for;
-        }
-        if (is_null($collection)) {
-            $collection = $this->in;
-        }
-        $this->return = new AqlInsert($document, $collection);
-        $this->checkOperationReturn();
-        return $this;
-    }
-
     /**
      * Set operation over current query
      * @param string $document document to
