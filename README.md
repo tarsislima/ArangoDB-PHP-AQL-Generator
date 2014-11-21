@@ -9,7 +9,6 @@ This is a experimental builder to generate Aql Query Strings and is in alpha ver
 * Quick summary
 * Version 1.1a
 
-
 ### Setup and basic 
 
  To run the queries in this examples was used the Statement Class of Arangodb Driver available on [Github ArangoDB-PHP](https://github.com/triAGENS/ArangoDB-PHP)
@@ -148,6 +147,7 @@ echo $mainQuery->get();
 
 ### Contribution guidelines ###
 
+* Give me a feedback/sugestions about this implementation !!Very important!!
 * Writing tests
 * Code review
 * Other guidelines
