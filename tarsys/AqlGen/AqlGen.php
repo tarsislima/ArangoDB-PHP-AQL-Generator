@@ -46,11 +46,15 @@ class AqlGen extends AbstractAql
      * Build a FOR <var> IN <Expression>
      *
      * @param string $for alias to the collection or list <var>
-     * @param string $inExpression collection name
+     * @param string|AqlGen $inExpression collection
      */
     public function __construct($for, $inExpression)
     {
         $this->for = $for;
+        if ($inExpression instanceof AqlGen) {
+            $this->bindParams($inExpression->getParams());
+            $inExpression = "(\n\t{$inExpression->get()})";
+        }
         $this->in = $inExpression;
         return $this;
     }

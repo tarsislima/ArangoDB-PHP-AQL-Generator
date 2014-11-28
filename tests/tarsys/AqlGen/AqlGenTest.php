@@ -22,6 +22,18 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("FOR u IN users\nRETURN u", $string);
     }
 
+    public function testQueryWithOtherQueryInCollection()
+    {
+        $collectionQuery = $aql = AqlGen::query('g', 'groups');
+        $collectionQuery->bindParams(array('id', '10'));
+
+        $aql = AqlGen::query('u', $collectionQuery);
+        $this->assertTrue($aql instanceof AqlGen);
+        $string = $aql->get();
+
+        $this->assertEquals("FOR u IN (\n\tFOR g IN groups\nRETURN g)\nRETURN u", $string);
+    }
+
     public function testQueryWithArrayInCollection()
     {
         //need implementation
