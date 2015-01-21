@@ -2,17 +2,22 @@
     "name": "tarsys/aql-gen",
     "description": "AQL builder for ArangoDb-PHP. [ALPHA]",
     "keywords": ["ArangoDb","Arango","AQL"],
-    "license": "Apache2",
+    "license": "MIT",
     "authors": [
         {
             "name": "Társis",
+            "email": "contato@tarsysweb.com.br",
             "homepage": "https://github.com/tarsislima/ArangoDB-PHP-AQL-Generator",
-            "role": "Developer"
+            "role": "Creator"
         }
     ],
     "autoload": {
     "psr-0": {
         "tarsys": "."
     }
+    },
+    "support": {
+        "source": "https://github.com/tarsislima/ArangoDB-PHP-AQL-Generator",
+        "issues": "https://github.com/tarsislima/ArangoDB-PHP-AQL-Generator/issues"
   }
 }
