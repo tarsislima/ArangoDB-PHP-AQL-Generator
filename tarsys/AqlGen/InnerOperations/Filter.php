@@ -18,8 +18,6 @@ class Filter extends AbstractAql
     const AND_OPERATOR = '&&';
     const OR_OPERATOR = '||';
 
-    protected $params = [];
-
     /**
      * Add a first condition
      *
@@ -78,7 +76,7 @@ class Filter extends AbstractAql
      */
     public function get()
     {
-        return self::OPERATOR . ' ' . $this->getConditionsString() . self::LINE_SEPARATOR;
+        return self::OPERATOR . ' ' . $this->getConditionsString() . PHP_EOL;
     }
 
     /**
@@ -97,29 +95,5 @@ class Filter extends AbstractAql
             }
         }
         return $query;
-    }
-
-    /**
-     * Set a list of params to bind
-     *
-     * @param Array $params Key => values of variables to bind
-     * eg: $query->bindParams(array('name' => 'john', 'status' => 'OK'));
-     * @return string
-     */
-    public function bindParams($params)
-    {
-        if (!empty($params)) {
-            $this->params = array_merge($this->params, $params);
-        }
-        return $this;
-    }
-
-    /**
-     * Get all params to bind
-     * @return Array
-     */
-    public function getParams()
-    {
-        return $this->params;
     }
 }

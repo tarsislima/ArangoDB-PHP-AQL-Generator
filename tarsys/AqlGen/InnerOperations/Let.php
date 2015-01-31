@@ -28,7 +28,7 @@ class Let extends AbstractAql
         if ($this->value instanceof AqlGen) {
             $this->value = "({$this->value})";
         }
-        $result = self::OPERATOR . " {$this->variable} = {$this->value}" . self::LINE_SEPARATOR;
+        $result = self::OPERATOR . " {$this->variable} = {$this->value}" . PHP_EOL;
         return $result;
     }
 }

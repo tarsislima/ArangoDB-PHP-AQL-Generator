@@ -32,6 +32,6 @@ class Collect extends AbstractAql
             $result .= ' INTO ' . $this->into;
         }
 
-        return $result . self::LINE_SEPARATOR;
+        return $result . PHP_EOL;
     }
 }
