@@ -3,6 +3,7 @@
 namespace tarsys\AqlGen\InnerOperations;
 
 use tarsys\AqlGen\AbstractAql;
+use tarsys\AqlGen\AqlFunction;
 use tarsys\AqlGen\AqlGen;
 
 /**
@@ -26,7 +27,10 @@ class Let extends AbstractAql
     public function get()
     {
         if ($this->value instanceof AqlGen) {
-            $this->value = "({$this->value})";
+            $this->value = "({$this->value->get()})";
+        }
+        if ($this->value instanceof AqlFunction) {
+            $this->value = "({$this->value->get()})";
         }
         $result = self::OPERATOR . " {$this->variable} = {$this->value}" . PHP_EOL;
         return $result;
