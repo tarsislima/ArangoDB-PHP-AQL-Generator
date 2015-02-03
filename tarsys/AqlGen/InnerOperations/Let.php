@@ -30,7 +30,7 @@ class Let extends AbstractAql
             $this->value = "({$this->value->get()})";
         }
         if ($this->value instanceof AqlFunction) {
-            $this->value = "({$this->value->get()})";
+            $this->value = "{$this->value->get()}";
         }
         $result = self::OPERATOR . " {$this->variable} = {$this->value}" . PHP_EOL;
         return $result;
