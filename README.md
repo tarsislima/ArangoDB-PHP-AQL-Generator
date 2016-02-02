@@ -55,7 +55,7 @@ $statement->setQuery($mainQuery->get());
 
 ```
 
-* More examples 
+* Sub Queries
 
 ```php
 //Example 1: subquery
