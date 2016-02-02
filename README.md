@@ -7,7 +7,7 @@ This is a experimental builder to generate Aql Query Strings and is in alpha ver
 ### What is this repository for? ###
 
 * Quick summary
-* Version 1.1a
+* Version 1.1-alpha
 
 ### Setup and basic 
 
