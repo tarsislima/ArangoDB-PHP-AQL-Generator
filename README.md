@@ -74,9 +74,12 @@ $statement->setQuery($mainQuery->get());
           FILTER u.id == l.id
     RETURN {`user`:u, `location`:l}
   */
+  
+```
 
+* Filter with bind params
 
-//Example 2 : filter bind variables
+```php
 
 $mainQuery = AqlGen::query('u', 'users')->filter('u.id == @id', ['id'=> 19]); 
 
@@ -92,8 +95,11 @@ echo $mainQuery->get();
 
 // USE $mainQuery->getParams(); to retrieve bind params
 
+```
 
-//Example 3 : LET
+* Variable assignment
+
+```php
 
 $mainQuery = AqlGen::query('u', 'users')
             ->let('myvar', 'hello')
@@ -109,9 +115,13 @@ $mainQuery = AqlGen::query('u', 'users')
           RETURN f
         )
     RETURN u
-  */
+  */ 
+  
+```
 
-//Example 4 : COLLECT
+* Result grouping
+
+```php
 
 $mainQuery = AqlGen::query('u', 'users')
             ->collect('myvar', 'u.city', 'g');
@@ -124,7 +134,11 @@ echo $mainQuery->get();
     RETURN u
   */
 
-//Example 5 : SORT
+```
+
+* Result sorting
+
+```php
 
 $mainQuery = AqlGen::query('u', 'users')
             ->sort('u.activity', AqlGen::SORT_DESC)
