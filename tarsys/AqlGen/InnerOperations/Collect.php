@@ -3,7 +3,6 @@
 namespace tarsys\AqlGen\InnerOperations;
 
 use tarsys\AqlGen\AbstractAql;
-use tarsys\AqlGen\AqlGen;
 
 /**
  * Class to implement COLLECT Operation
