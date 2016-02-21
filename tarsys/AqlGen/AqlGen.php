@@ -32,12 +32,12 @@ class AqlGen extends AbstractAql
 
     protected $for;
     protected $in;
-    protected $inner = [];
-    protected $sort = [];
+    protected $inner = array();
+    protected $sort = array();
     protected $skip;
     protected $limit;
     protected $return;
-    protected $params = [];
+
     protected $isSubQuery = false;
 
     protected $operation = self::OPERATION_RETURN;
@@ -82,7 +82,7 @@ class AqlGen extends AbstractAql
     {
         $subquery->setSubquery();
         $this->bindParams($subquery->getParams());
-        $this->inner[] = [self::TYPE_FOR => $subquery];
+        $this->inner[] = array(self::TYPE_FOR => $subquery);
         return $this;
     }
 
@@ -99,7 +99,7 @@ class AqlGen extends AbstractAql
             $this->bindParams($expression->getParams());
         }
 
-        $this->inner[] = [self::TYPE_LET => new Let($var, $expression)];
+        $this->inner[] = array(self::TYPE_LET => new Let($var, $expression));
         return $this;
     }
 
@@ -113,7 +113,7 @@ class AqlGen extends AbstractAql
      */
     public function collect($var, $expression, $into = null)
     {
-        $this->inner[] = [self::TYPE_COLLECT => new Collect($var, $expression, $into)];
+        $this->inner[] = array(self::TYPE_COLLECT => new Collect($var, $expression, $into));
         return $this;
     }
 
@@ -131,7 +131,7 @@ class AqlGen extends AbstractAql
      *
      * @return \AqlGen
      */
-    public function filter($filterCriteria, $params = [])
+    public function filter($filterCriteria, $params = array())
     {
         $this->addFilter($filterCriteria, $params, AqlFilter::AND_OPERATOR);
         return $this;
@@ -143,7 +143,7 @@ class AqlGen extends AbstractAql
      * @param Array $params the params that bind to filter
      * @return \AqlGen
      */
-    public function orFilter($filterCriteria, $params = [])
+    public function orFilter($filterCriteria, $params = array())
     {
         $this->addFilter($filterCriteria, $params, AqlFilter::OR_OPERATOR);
         return $this;
@@ -213,7 +213,7 @@ class AqlGen extends AbstractAql
      */
     protected function getForString()
     {
-        $return = "FOR {$this->for} IN {$this->in}" . self::LINE_SEPARATOR;
+        $return = "FOR {$this->for} IN {$this->in}" . PHP_EOL;
         return $return;
     }
 
@@ -226,7 +226,7 @@ class AqlGen extends AbstractAql
         $query = '';
         if (!empty($this->sort)) {
             $sort = implode(', ', $this->sort);
-            $query = self::TAB_SEPARATOR . "SORT " . $sort . self::LINE_SEPARATOR;
+            $query = self::TAB_SEPARATOR . "SORT " . $sort . PHP_EOL;
         }
         return $query;
     }
@@ -243,7 +243,7 @@ class AqlGen extends AbstractAql
             if (!empty($this->skip)) {
                 $this->limit = $this->skip . ', ' . $this->limit;
             }
-            $str .= 'LIMIT ' . $this->limit . self::LINE_SEPARATOR;
+            $str .= 'LIMIT ' . $this->limit . PHP_EOL;
         }
         return $str;
     }
@@ -269,39 +269,6 @@ class AqlGen extends AbstractAql
         return $this->return->get();
     }
 
-    /**
-     * Set a list of params to bind
-     *
-     * @param Array $params Key => values of variables to bind
-     * eg: $query->bindParams(array('name' => 'john', 'status' => 'OK'));
-     * @return string
-     */
-    public function bindParams($params)
-    {
-        if (!empty($params)) {
-            $this->params = array_merge($this->params, $params);
-        }
-        return $this;
-    }
-
-    /**
-     * Set a specific param to bind
-     * @return string
-     */
-    public function bindParam($key, $value)
-    {
-        $this->params[$key] = $value;
-        return $this;
-    }
-
-    /**
-     * Get all params to bind
-     * @return Array
-     */
-    public function getParams()
-    {
-        return $this->params;
-    }
 
     /**
      * set a RETURN part of query
@@ -337,13 +304,13 @@ class AqlGen extends AbstractAql
      * check if the Operation is valid
      * @return $this
      */
-    private function checkOperationReturn()
-    {
-        if ($this->isSubQuery == true && !$this->return instanceof AqlReturn) {
-            throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
-        }
-        return $this;
-    }
+    /*  private function checkOperationReturn()
+      {
+          if ($this->isSubQuery == true && !$this->return instanceof AqlReturn) {
+              throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
+          }
+          return $this;
+      }*/
 
     /**
      * Set if RETURN operator is required. Optional only in subqueries
@@ -361,7 +328,7 @@ class AqlGen extends AbstractAql
      * @param array $params
      * @param string $operator
      */
-    protected function addFilter($filterCriteria, $params = [], $operator = AqlFilter::AND_OPERATOR)
+    protected function addFilter($filterCriteria, $params = array(), $operator = AqlFilter::AND_OPERATOR)
     {
         if (!$filterCriteria instanceof AqlFilter) {
             $filterCriteria = new AqlFilter($filterCriteria);
@@ -383,7 +350,7 @@ class AqlGen extends AbstractAql
             return;
         }
 
-        $this->inner[] = [self::TYPE_FILTER => $filterCriteria];
+        $this->inner[] = array(self::TYPE_FILTER => $filterCriteria);
     }
 
     /**

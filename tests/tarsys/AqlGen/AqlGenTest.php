@@ -3,6 +3,7 @@
 namespace tests\tarsys;
 
 use PHPUnit_Framework_TestCase;
+use tarsys\AqlGen\AqlFunction;
 use tarsys\AqlGen\AqlGen;
 use tarsys\AqlGen\AqlFilter;
 
@@ -118,6 +119,14 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         $this->assertEquals("FOR u IN users\n\tLET points = (FOR f IN friends\nRETURN f)\nRETURN u", $string);
     }
 
+    public function testLetWithFunctionOverSubquery()
+    {
+        $friendsQuery = AqlGen::query('f', 'friends');
+        $aql = AqlGen::query('u', 'users')->let('points', new AqlFunction('FIRST', [$friendsQuery]));
+        $string = $aql->get();
+        $this->assertEquals("FOR u IN users\n\tLET points = FIRST ((FOR f IN friends\nRETURN f))\nRETURN u", $string);
+    }
+
     public function testCollect()
     {
         $aql = AqlGen::query('u', 'users')->collect('points', 'u.name');
@@ -183,5 +192,10 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('maxAge', $params);
         $this->assertEquals($params['maxAge'], 50);
+    }
+
+    public function testLetWithFilter()
+    {
+
     }
 }
