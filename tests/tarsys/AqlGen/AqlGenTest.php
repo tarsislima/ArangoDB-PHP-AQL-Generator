@@ -142,12 +142,12 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
 
     public function testAndFilterWithParams()
     {
-        $aql = AqlGen::query('u', 'users')->filter('u.age = @age', ['@age' => 20]);
+        $aql = AqlGen::query('u', 'users')->filter('u.age = @age', ['age' => 20]);
         $string = $aql->get();
         $this->assertEquals("FOR u IN users\n\tFILTER u.age = @age\nRETURN u", $string);
         $params = $aql->getParams();
-        $this->assertArrayHasKey('@age', $params);
-        $this->assertEquals($params['@age'], 20);
+        $this->assertArrayHasKey('age', $params);
+        $this->assertEquals($params['age'], 20);
     }
 
     public function testOrFilter()
@@ -165,8 +165,8 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         $filter->andFilter('u.age < @maxAge');
         $filter->bindParams(
             [
-                '@minAge' => 20,
-                '@maxAge' => 50,
+                'minAge' => 20,
+                'maxAge' => 50,
             ]
         );
 
@@ -178,10 +178,10 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         );
 
         $params = $aql->getParams();
-        $this->assertArrayHasKey('@minAge', $params);
-        $this->assertEquals($params['@minAge'], 20);
+        $this->assertArrayHasKey('minAge', $params);
+        $this->assertEquals($params['minAge'], 20);
 
-        $this->assertArrayHasKey('@maxAge', $params);
-        $this->assertEquals($params['@maxAge'], 50);
+        $this->assertArrayHasKey('maxAge', $params);
+        $this->assertEquals($params['maxAge'], 50);
     }
 }
