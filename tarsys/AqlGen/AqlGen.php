@@ -63,7 +63,7 @@ class AqlGen extends AbstractAql
      * Build a FOR <var> IN <Expression>
      *
      * @param string $for alias to the collection or list <var>
-     * @param string $inExpression collection name
+     * @param string $inExpression collection name | \tarsys\AqlGen\AqlGen
      * @return \tarsys\AqlGen\AqlGen
      */
     public static function query($for, $inExpression)

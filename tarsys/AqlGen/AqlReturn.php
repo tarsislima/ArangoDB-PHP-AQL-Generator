@@ -3,7 +3,7 @@
 namespace tarsys\AqlGen;
 
 /**
- * Class to implement UPDATE Operation
+ * Class to implement Return Operation
  *
  * @author Tarsis Lima
  */
