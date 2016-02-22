@@ -10,7 +10,6 @@ namespace tarsys\AqlGen;
 
 abstract class AbstractAql
 {
-    //const LINE_SEPARATOR = "\n";
     const TAB_SEPARATOR = "\t";
 
     protected $params = array();

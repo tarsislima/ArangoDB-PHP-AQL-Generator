@@ -1,8 +1,6 @@
 <?php
 
-namespace tests\tarsys;
 
-use PHPUnit_Framework_TestCase;
 use tarsys\AqlGen\AqlFunction;
 use tarsys\AqlGen\AqlGen;
 use tarsys\AqlGen\AqlFilter;
@@ -12,10 +10,11 @@ use tarsys\AqlGen\AqlFilter;
  *
  * @author Társis Lima
  */
-class AqlGenTest extends PHPUnit_Framework_TestCase
+class AqlGenTest extends \PHPUnit_Framework_TestCase
 {
     public function testQuery()
     {
+
         $aql = AqlGen::query('u', 'users');
         $this->assertTrue($aql instanceof AqlGen);
         $string = $aql->get();
@@ -45,6 +44,13 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         $aql = AqlGen::query('u', 'users')->setReturn("{'name': u.name}");
         $string = $aql->get();
         $this->assertEquals("FOR u IN users\nRETURN {'name': u.name}", $string);
+
+        $returnData = array(
+            'name' => 'u.name'
+        );
+        $aql = AqlGen::query('u', 'users')->setReturn($returnData);
+        $string = $aql->get();
+        $this->assertEquals("FOR u IN users\nRETURN {\"name\":\"u.name\"}", $string);
     }
 
     public function testSort()
@@ -194,6 +200,35 @@ class AqlGenTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($params['maxAge'], 50);
     }
 
+    public function testReturnNotExistByDefaultInChangeOperations()
+    {
+
+    }
+
+    public function testReturnExistInChangeOperationsWhenCalled()
+    {
+
+    }
+
+    public function testInsertOperation()
+    {
+
+    }
+
+    public function testUpdateOperation()
+    {
+
+    }
+
+    public function testDeleteOperation()
+    {
+
+    }
+
+    public function testReplaceOperation()
+    {
+
+    }
     public function testLetWithFilter()
     {
 

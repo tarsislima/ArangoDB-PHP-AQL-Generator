@@ -187,6 +187,7 @@ class AqlGen extends AbstractAql
         $query .= $this->getInnerExpressionsString();
         $query .= $this->getSortString();
         $query .= $this->getLimitString();
+        //Change Operations here: put update , delete, insert replace
         $query .= $this->getReturnString();
         return $query;
     }
