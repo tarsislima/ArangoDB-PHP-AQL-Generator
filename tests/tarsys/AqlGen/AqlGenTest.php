@@ -1,5 +1,5 @@
 <?php
-
+namespace tests\tarsys;
 
 use tarsys\AqlGen\AqlFunction;
 use tarsys\AqlGen\AqlGen;
@@ -200,14 +200,31 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($params['maxAge'], 50);
     }
 
+
     public function testReturnNotExistByDefaultInChangeOperations()
     {
+        $aql = AqlGen::query('u', 'users');
+        $data = array(
+            'name' => 'Jhon'
+        );
 
+        $aql->insert($data, 'backup');
+        $this->assertEquals("FOR u IN users\nINSERT {\"name\":\"Jhon\"} IN backup ", $aql->get());
+
+        //@todo testar para update e delete
     }
+
 
     public function testReturnExistInChangeOperationsWhenCalled()
     {
+        $aql = AqlGen::query('u', 'users');
+        $data = array(
+            'name' => 'Jhon'
+        );
 
+        $aql->insert($data, 'backup');
+        $aql->setReturn('u');
+        $this->assertEquals("FOR u IN users\nINSERT {\"name\":\"Jhon\"} IN backup RETURN u", $aql->get());
     }
 
     public function testInsertOperation()
@@ -229,6 +246,18 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
     {
 
     }
+
+    public function testExpressionRemoveQuotes()
+    {
+        $aql = AqlGen::query('i', '[1..10]');
+
+        $data = array(
+            'name' => AqlGen::expr('Jhon + i')
+        );
+        $aql->insert($data, 'backup');
+        $this->assertEquals("FOR i IN [1..10]\nINSERT {\"name\":Jhon + i} IN backup ", $aql->get());
+    }
+
     public function testLetWithFilter()
     {
 

@@ -29,13 +29,13 @@ class AqlGen extends AbstractAql
     const OPERATION_REPLACE = 'REPLACE';
     const OPERATION_DELETE = 'DELETE';
 
-
     protected $for;
     protected $in;
     protected $inner = array();
     protected $sort = array();
     protected $skip;
     protected $limit;
+    protected $changeOperation = null;
     protected $return;
 
     protected $isSubQuery = false;
@@ -187,8 +187,23 @@ class AqlGen extends AbstractAql
         $query .= $this->getInnerExpressionsString();
         $query .= $this->getSortString();
         $query .= $this->getLimitString();
-        //Change Operations here: put update , delete, insert replace
+        $query .= $this->getChangeOperationString();
         $query .= $this->getReturnString();
+
+        $query = $this->removeExpressionDelimiter($query);
+        return $query;
+    }
+
+    /**
+     * Remove quotes from expressions after json format was applied
+     *
+     * @param $query
+     * @return mixed
+     */
+    protected function removeExpressionDelimiter($query)
+    {
+        $query = str_replace('"' . self::EXPRESSION_DELIMITER, "", $query);
+        $query = str_replace(self::EXPRESSION_DELIMITER . '"', "", $query);
         return $query;
     }
 
@@ -250,6 +265,19 @@ class AqlGen extends AbstractAql
     }
 
     /**
+     * One of the Change operations EG: insert, update
+     *
+     * @return mixed
+     */
+    public function getChangeOperationString()
+    {
+        if (!is_null($this->changeOperation)) {
+            return $this->changeOperation->get();
+        }
+        return false;
+    }
+
+    /**
      * the RETURN part of query
      * @return string
      */
@@ -264,6 +292,9 @@ class AqlGen extends AbstractAql
         }
 
         if (is_null($this->return)) {
+            if (!is_null($this->changeOperation)) {
+                return;
+            }
             $this->setReturn($this->for);
         }
 
@@ -281,6 +312,14 @@ class AqlGen extends AbstractAql
         $this->return = new AqlReturn($return);
         return $this;
     }
+
+
+    public function insert(array $document, $collection)
+    {
+        $this->changeOperation = new AqlInsert($document, $collection);
+        return $this;
+    }
+
 
     /**
      * Set operation over current query
@@ -323,6 +362,7 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
+
     /**
      * Add filter item
      * @param String | AqlFilter $filterCriteria
@@ -353,6 +393,7 @@ class AqlGen extends AbstractAql
 
         $this->inner[] = array(self::TYPE_FILTER => $filterCriteria);
     }
+
 
     /**
      * Return the index of filter item if this is last inner item added

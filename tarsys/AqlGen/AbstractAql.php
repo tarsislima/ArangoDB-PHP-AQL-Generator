@@ -11,10 +11,19 @@ namespace tarsys\AqlGen;
 abstract class AbstractAql
 {
     const TAB_SEPARATOR = "\t";
+    const EXPRESSION_DELIMITER = ':=';
 
     protected $params = array();
 
     abstract public function get();
+
+    /**
+     * return expression delimited expression
+     */
+    public static function expr($expr)
+    {
+        return self::EXPRESSION_DELIMITER . $expr . self::EXPRESSION_DELIMITER;
+    }
 
     /**
      * Set a list of params to bind

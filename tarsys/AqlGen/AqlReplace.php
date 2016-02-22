@@ -3,25 +3,34 @@
 namespace tarsys\AqlGen;
 
 /**
- * Class to implement DELETE Operation
+ * Class to implement REPLACE Operation
  *
  * @author Tarsis Lima
  */
 class AqlReplace extends AbstractAql
 {
-    const OPERATOR = 'DELETE';
+    const OPERATOR = 'REPLACE';
 
     protected $document;
     protected $collection;
     protected $options;
 
-    public function __construct($document, $collection, $options = null)
+    /**
+     * AqlReplace constructor.
+     * @param array|string $document
+     * @param string $collection
+     * @param array|null $options
+     */
+    public function __construct($document, $collection, array $options = null)
     {
         $this->document = $document;
         $this->collection = $collection;
         $this->options = $options;
     }
 
+    /**
+     * @return string
+     */
     public function get()
     {
         if (is_array($this->document)) {
@@ -33,7 +42,7 @@ class AqlReplace extends AbstractAql
         }
         $result = self::OPERATOR . " {$this->document} IN {$this->collection}";
         if (!empty($this->options)) {
-            $result .= "OPTIONS " . $this->options;
+            $result .= " OPTIONS " . $this->options;
         }
         return $result;
     }

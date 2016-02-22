@@ -15,11 +15,18 @@ class AqlReturn extends AbstractAql
     protected $collection;
     protected $data = null;
 
+    /**
+     * AqlReturn constructor.
+     * @param array|string $document
+     */
     public function __construct($document)
     {
         $this->document = $document;
     }
 
+    /**
+     * @return string
+     */
     public function get()
     {
         if (is_array($this->document)) {
