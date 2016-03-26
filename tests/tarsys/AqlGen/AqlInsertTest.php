@@ -21,6 +21,6 @@ class AqlInsertTest extends PHPUnit_Framework_TestCase
         );
 
         $insert = new AqlInsert($data, 'users');
-        $this->assertEquals('INSERT {"name":"Jhon","age":18,"tags":["music","sports","dance"]} IN users', $insert->get());
+        $this->assertEquals('INSERT {"name":"Jhon","age":18,"tags":["music","sports","dance"]} IN users ', $insert->get());
     }
 }

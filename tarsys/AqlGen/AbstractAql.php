@@ -66,4 +66,33 @@ abstract class AbstractAql
     {
         $this->params = array();
     }
+
+    protected function normalizeDocument()
+    {
+        if (is_string($this->document)) {
+            $this->document = '"' . $this->document . '"';
+        }
+
+        if (is_array($this->document)) {
+            $this->document = json_encode($this->document);
+            $this->document = $this->fixDocumentKeywords($this->document);
+        }
+    }
+
+    /**
+     * remove quotation marks of reserved words in documents string
+     */
+    protected function fixDocumentKeywords($document)
+    {
+        $reserved = array(
+            '"_key"' => '_key',
+            '"_rev"' => '_rev',
+            '"NEW"' => 'NEW',
+            '"OLD"' => 'OLD',
+            '"NEW._key"' => 'NEW._key',
+            '"OLD._key"' => 'OLD._key',
+        );
+
+        return str_replace(array_keys($reserved), array_values($reserved), $document);
+    }
 }

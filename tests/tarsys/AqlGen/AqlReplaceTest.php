@@ -15,7 +15,7 @@ class AqlReplaceTest extends PHPUnit_Framework_TestCase
         );
 
         $insert = new AqlReplace($data, 'users');
-        $this->assertEquals('REPLACE {"name":"Paul"} IN users', $insert->get());
+        $this->assertEquals('REPLACE {"name":"Paul"} IN users ', $insert->get());
     }
 
     public function testReplaceExpressionWithOptions()
@@ -27,6 +27,6 @@ class AqlReplaceTest extends PHPUnit_Framework_TestCase
         $options = array("ignoreErrors" => true);
 
         $insert = new AqlReplace($data, 'users', $options);
-        $this->assertEquals('REPLACE {"name":"Paul"} IN users OPTIONS {"ignoreErrors":true}', $insert->get());
+        $this->assertEquals('REPLACE {"name":"Paul"} IN users OPTIONS {"ignoreErrors":true} ', $insert->get());
     }
 }

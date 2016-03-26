@@ -40,8 +40,6 @@ class AqlGen extends AbstractAql
 
     protected $isSubQuery = false;
 
-    protected $operation = self::OPERATION_RETURN;
-
     /**
      * Build a FOR <var> IN <Expression>
      *
@@ -287,7 +285,7 @@ class AqlGen extends AbstractAql
             if (is_null($this->return)) {
                 return '';
             } else {
-                throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
+                throw new InvalidArgumentException("A subquery not should have a RETURN operation.");
             }
         }
 

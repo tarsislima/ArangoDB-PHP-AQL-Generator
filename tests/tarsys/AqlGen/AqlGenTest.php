@@ -252,10 +252,11 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
         $aql = AqlGen::query('i', '[1..10]');
 
         $data = array(
+            '_key' => 999,
             'name' => AqlGen::expr('Jhon + i')
         );
         $aql->insert($data, 'backup');
-        $this->assertEquals("FOR i IN [1..10]\nINSERT {\"name\":Jhon + i} IN backup ", $aql->get());
+        $this->assertEquals("FOR i IN [1..10]\nINSERT {_key:999,\"name\":Jhon + i} IN backup ", $aql->get());
     }
 
     public function testLetWithFilter()

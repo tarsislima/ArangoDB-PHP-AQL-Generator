@@ -44,6 +44,6 @@ class AqlReplace extends AbstractAql
         if (!empty($this->options)) {
             $result .= " OPTIONS " . $this->options;
         }
-        return $result;
+        return $result . " ";
     }
 }

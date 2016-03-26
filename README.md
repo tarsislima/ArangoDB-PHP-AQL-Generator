@@ -1,13 +1,12 @@
 # README #
 
-AQL Generator For ArangoDb-PHP   [Alpha]
+AQL Generator For ArangoDb-PHP   [Beta]
 
-This is a experimental builder to generate Aql Query Strings and is in alpha version.
+*NOTE: AQLGen is currently in a beta state, please report any issues in the issue tracker.*
 
-### What is this repository for? ###
+This is a experimental Aql Query Builder to generate AQL strings.
 
-* Quick summary
-* Version 1.1-alpha
+* Version v1.1-beta
 
 ### Setup and basic 
 

@@ -8,26 +8,14 @@ use tarsys\AqlGen\AqlUpdate;
 
 class AqlUpdateTest extends PHPUnit_Framework_TestCase
 {
-
-    public function testReplaceExpression()
+    public function testUpdateExpression()
     {
         $data = array(
-            'name' => 'Paul'
+            'status' => 'active',
+            'location' => 'Beijing'
         );
 
-        $insert = new AqlUpdate($data, 'users');
-        $this->assertEquals('REPLACE {"name":"Paul"} IN users', $insert->get());
-    }
-
-    public function testReplaceExpressionWithOptions()
-    {
-        $data = array(
-            'name' => 'Paul'
-        );
-
-        $options = array("ignoreErrors" => true);
-
-        $insert = new AqlReplace($data, 'users', $options);
-        $this->assertEquals('REPLACE {"name":"Paul"} IN users OPTIONS {"ignoreErrors":true}', $insert->get());
+        $insert = new AqlUpdate("PhilCarpenter", $data, 'users');
+        $this->assertEquals('UPDATE "PhilCarpenter" WITH {"status":"active","location":"Beijing"} IN users ', $insert->get());
     }
 }

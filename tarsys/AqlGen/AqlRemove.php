@@ -3,23 +3,24 @@
 namespace tarsys\AqlGen;
 
 /**
- * Class to implement INSERT Operation
+ * Class to implement REMOVE Operation
  *
  * @author Tarsis Lima
  */
-class AqlInsert extends AbstractAql
+class AqlRemove extends AbstractAql
 {
-    const OPERATOR = 'INSERT';
+    const OPERATOR = 'REMOVE';
 
     protected $document;
     protected $collection;
 
     /**
      * AqlInsert constructor.
-     * @param array $document
+     *
+     * @param mixed $document
      * @param string $collection
      */
-    public function __construct(array $document, $collection)
+    public function __construct($document, $collection)
     {
         $this->document = $document;
         $this->collection = $collection;
@@ -30,7 +31,16 @@ class AqlInsert extends AbstractAql
      */
     public function get()
     {
+        /*if (is_string($this->document)) {
+            $this->document = '"' . $this->document . '"';
+        }
+
+        if (is_array($this->document)) {
+            $this->document = json_encode($this->document);
+            $this->document = $this->fixDocumentKeywords($this->document);
+        }*/
         $this->normalizeDocument();
+
         $result = self::OPERATOR . " {$this->document} IN {$this->collection} ";
         return $result;
     }
