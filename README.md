@@ -169,8 +169,7 @@ echo $mainQuery->get();
   */
 ```
 
-DATA MODIFICATIONS
-================================
+### Data Modification ###
 
 * Insert 
 
@@ -201,10 +200,40 @@ echo $mainQuery->get();
   */
 ```
 
+* Update 
 
-* Configuration
-* Dependencies
+```php
 
+$data = array(
+    "name" => "Paul",
+    "age" => 21
+)
+
+$query = AqlUpdate::query('u', $data, 'users'); 
+
+echo $mainQuery->get();
+
+ /* Generate this string: 
+    UPDATE {"name": "Paul", "age": 21} IN users    
+  */
+
+//with filters 
+$data = array(
+            'status' => "inactive"
+        );
+
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == 0')
+            ->update($data); 
+
+echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       FILTER u.status == 0
+       UPDATE u IN users
+  */
+```
 
 ### Contribution guidelines ###
 

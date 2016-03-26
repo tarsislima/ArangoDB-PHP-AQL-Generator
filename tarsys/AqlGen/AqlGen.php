@@ -304,18 +304,42 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
+    /**
+     * @param $document
+     * @param $collection
+     * @return $this
+     */
     public function insert($document, $collection)
     {
         $this->changeOperation = new AqlInsert($document, $collection);
         return $this;
     }
 
-    public function update($document, array $changedAttributes, $collection)
+    /**
+     * @param array $changedAttributes
+     * @param null $document
+     * @param null $collection
+     * @return $this
+     */
+    public function update(array $changedAttributes, $document = null, $collection = null)
     {
+        if (is_null($document)) {
+            $document = $this->document;
+        }
+
+        if (is_null($collection)) {
+            $collection = $this->collection;
+        }
         $this->changeOperation = new AqlUpdate($document, $changedAttributes, $collection);
         return $this;
     }
 
+    /**
+     * @param $document
+     * @param null $collection
+     * @param array|null $options
+     * @return $this
+     */
     public function replace($document, $collection = null, array $options = null)
     {
         if (is_null($collection)) {
@@ -326,6 +350,11 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
+    /**
+     * @param null $document
+     * @param null $collection
+     * @return $this
+     */
     public function remove($document = null, $collection = null)
     {
         if (is_null($document)) {

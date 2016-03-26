@@ -254,14 +254,14 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
 
         $aql = AqlGen::query('u', 'users')
             ->filter('u.status == 0')
-            ->update('u', $data, 'users');
+            ->update($data);
 
         $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN users ", $aql->get());
 
         //with no data
         $data = array();
         $aql = AqlGen::query('u', 'users')
-            ->update('u', $data, 'users');
+            ->update($data, 'u', 'users');
 
         $this->assertEquals("FOR u IN users\nUPDATE u WITH {} IN users ", $aql->get());
     }
