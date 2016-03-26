@@ -182,17 +182,17 @@ $data = array(
 
 $query = AqlInsert::query('u', 'users', $data); 
 
-echo $mainQuery->get();
+echo $query->get();
 
  /* Generate this string: 
     INSERT {"name": "Paul", "age": 21} IN users    
   */
 
 //between collections
-$mainQuery = AqlGen::query('u', 'users')
+$query = AqlGen::query('u', 'users')
             ->insert('u', 'backup');
 
-echo $mainQuery->get();
+echo $query->get();
  
  /* Generate this string: 
     FOR u IN users 
@@ -211,7 +211,7 @@ $data = array(
 
 $query = AqlUpdate::query('u', $data, 'users'); 
 
-echo $mainQuery->get();
+echo $query->get();
 
  /* Generate this string: 
     UPDATE {"name": "Paul", "age": 21} IN users    
@@ -222,11 +222,11 @@ $data = array(
             'status' => "inactive"
         );
 
-        $aql = AqlGen::query('u', 'users')
+        $query = AqlGen::query('u', 'users')
             ->filter('u.status == 0')
             ->update($data); 
 
-echo $mainQuery->get();
+echo $query->get();
  
  /* Generate this string: 
     FOR u IN users 
