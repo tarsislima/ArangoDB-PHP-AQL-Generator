@@ -311,13 +311,13 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
     public function testAqlExpressionRemoveQuotes()
     {
         $data = array(
-            'value' => AqlGen::expr('i + 100')
+            'value' => AqlGen::expr('FLOOR(i + 100)')
         );
 
         $aql = AqlGen::query('i', '1..10')
             ->insert($data, 'backup');
 
-        $this->assertEquals("FOR i IN 1..10\nINSERT {\"value\":i + 100} IN backup ", $aql->get());
+        $this->assertEquals("FOR i IN 1..10\nINSERT {\"value\":FLOOR(i + 100)} IN backup ", $aql->get());
     }
 
     public function testLetWithFilter()

@@ -260,7 +260,7 @@ class AqlGen extends AbstractAql
      *
      * @return mixed
      */
-    public function getChangeOperationString()
+    protected function getChangeOperationString()
     {
         if (!is_null($this->changeOperation)) {
             return $this->changeOperation->get();
