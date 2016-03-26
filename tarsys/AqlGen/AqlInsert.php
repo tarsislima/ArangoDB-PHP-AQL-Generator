@@ -16,10 +16,10 @@ class AqlInsert extends AbstractAql
 
     /**
      * AqlInsert constructor.
-     * @param array $document
+     * @param mixed $document
      * @param string $collection
      */
-    public function __construct(array $document, $collection)
+    public function __construct($document, $collection)
     {
         $this->document = $document;
         $this->collection = $collection;
@@ -30,7 +30,7 @@ class AqlInsert extends AbstractAql
      */
     public function get()
     {
-        $this->normalizeDocument();
+        $this->document = $this->normalizeDocument($this->document);
         $result = self::OPERATOR . " {$this->document} IN {$this->collection} ";
         return $result;
     }

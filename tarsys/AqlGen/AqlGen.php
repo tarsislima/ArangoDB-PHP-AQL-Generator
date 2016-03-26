@@ -22,15 +22,8 @@ class AqlGen extends AbstractAql
     const SORT_ASC = 'ASC';
     const SORT_DESC = 'DESC';
 
-    /** Operation Types constants */
-    const OPERATION_RETURN = 'RETURN';
-    const OPERATION_INSERT = 'INSERT';
-    const OPERATION_UPDATE = 'UPDATE';
-    const OPERATION_REPLACE = 'REPLACE';
-    const OPERATION_DELETE = 'DELETE';
-
-    protected $for;
-    protected $in;
+    protected $document;
+    protected $collection;
     protected $inner = array();
     protected $sort = array();
     protected $skip;
@@ -48,12 +41,12 @@ class AqlGen extends AbstractAql
      */
     public function __construct($for, $inExpression)
     {
-        $this->for = $for;
+        $this->document = $for;
         if ($inExpression instanceof AqlGen) {
             $this->bindParams($inExpression->getParams());
             $inExpression = "(\n\t{$inExpression->get()})";
         }
-        $this->in = $inExpression;
+        $this->collection = $inExpression;
         return $this;
     }
 
@@ -227,7 +220,7 @@ class AqlGen extends AbstractAql
      */
     protected function getForString()
     {
-        $return = "FOR {$this->for} IN {$this->in}" . PHP_EOL;
+        $return = "FOR {$this->document} IN {$this->collection}" . PHP_EOL;
         return $return;
     }
 
@@ -293,7 +286,7 @@ class AqlGen extends AbstractAql
             if (!is_null($this->changeOperation)) {
                 return;
             }
-            $this->setReturn($this->for);
+            $this->setReturn($this->document);
         }
 
         return $this->return->get();
@@ -311,10 +304,39 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
-
-    public function insert(array $document, $collection)
+    public function insert($document, $collection)
     {
         $this->changeOperation = new AqlInsert($document, $collection);
+        return $this;
+    }
+
+    public function update($document, array $changedAttributes, $collection)
+    {
+        $this->changeOperation = new AqlUpdate($document, $changedAttributes, $collection);
+        return $this;
+    }
+
+    public function replace($document, $collection = null, array $options = null)
+    {
+        if (is_null($collection)) {
+            $collection = $this->collection;
+        }
+
+        $this->changeOperation = new AqlReplace($document, $collection, $options);
+        return $this;
+    }
+
+    public function remove($document = null, $collection = null)
+    {
+        if (is_null($document)) {
+            $document = $this->document;
+        }
+
+        if (is_null($collection)) {
+            $collection = $this->collection;
+        }
+
+        $this->changeOperation = new AqlRemove($document, $collection);
         return $this;
     }
 
@@ -329,10 +351,10 @@ class AqlGen extends AbstractAql
     protected function setCollectionOperation($document = null, $collection = null, $with = null)
     {
         if (is_null($document)) {
-            $document = $this->for;
+            $document = $this->document;
         }
         if (is_null($collection)) {
-            $collection = $this->in;
+            $collection = $this->collection;
         }
         $return = $document . " {$with} IN " . $collection;
         return $this->setOperationReturn($return);

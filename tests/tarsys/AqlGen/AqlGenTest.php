@@ -229,34 +229,95 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
 
     public function testInsertOperation()
     {
+        $aql = AqlGen::query('u', 'users')
+            ->insert('u', 'backup');
 
+        $this->assertEquals("FOR u IN users\nINSERT u IN backup ", $aql->get());
+
+        //insert document
+        $data = array(
+            'name' => AqlGen::expr('u.name'),
+            'type' => "A"
+        );
+
+        $aql = AqlGen::query('u', 'users')
+            ->insert($data, 'backup');
+
+        $this->assertEquals("FOR u IN users\nINSERT {\"name\":u.name,\"type\":\"A\"} IN backup ", $aql->get());
     }
 
     public function testUpdateOperation()
     {
+        $data = array(
+            'status' => "inactive"
+        );
 
-    }
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == 0')
+            ->update('u', $data, 'users');
 
-    public function testDeleteOperation()
-    {
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN users ", $aql->get());
 
+        //with no data
+        $data = array();
+        $aql = AqlGen::query('u', 'users')
+            ->update('u', $data, 'users');
+
+        $this->assertEquals("FOR u IN users\nUPDATE u WITH {} IN users ", $aql->get());
     }
 
     public function testReplaceOperation()
     {
+        $data = array(
+            '_key' => AqlGen::expr('u._key'),
+            'status' => 'active'
+        );
 
+        $aql = AqlGen::query('u', 'users')
+            ->replace($data);
+
+        $this->assertEquals("FOR u IN users\nREPLACE {_key:u._key,\"status\":\"active\"} IN users ", $aql->get());
+
+        //replace in other collection
+        $data = array(
+            '_key' => AqlGen::expr('u._key'),
+            'status' => 'active'
+        );
+
+        $aql = AqlGen::query('u', 'users')
+            ->replace($data, 'backup');
+
+        $this->assertEquals("FOR u IN users\nREPLACE {_key:u._key,\"status\":\"active\"} IN backup ", $aql->get());
     }
 
-    public function testExpressionRemoveQuotes()
+    public function testRemoveOperation()
     {
-        $aql = AqlGen::query('i', '[1..10]');
+        //same collection
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == deleted')
+            ->remove();
 
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == deleted\nREMOVE u IN users ", $aql->get());
+
+        //other collection
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == deleted')
+            ->remove('u', 'backup');
+
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == deleted\nREMOVE u IN backup ", $aql->get());
+    }
+
+
+    public function testAqlExpressionRemoveQuotes()
+    {
         $data = array(
-            '_key' => 999,
-            'name' => AqlGen::expr('Jhon + i')
+            'value' => AqlGen::expr('i + 100')
         );
-        $aql->insert($data, 'backup');
-        $this->assertEquals("FOR i IN [1..10]\nINSERT {_key:999,\"name\":Jhon + i} IN backup ", $aql->get());
+
+        $aql = AqlGen::query('i', '1..10')
+            ->insert($data, 'backup');
+
+        $this->assertEquals("FOR i IN 1..10\nINSERT {\"value\":i + 100} IN backup ", $aql->get());
     }
 
     public function testLetWithFilter()

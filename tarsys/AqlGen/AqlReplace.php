@@ -33,9 +33,7 @@ class AqlReplace extends AbstractAql
      */
     public function get()
     {
-        if (is_array($this->document)) {
-            $this->document = json_encode($this->document);
-        }
+        $this->document = $this->normalizeDocument($this->document);
 
         if (is_array($this->options)) {
             $this->options = json_encode($this->options);

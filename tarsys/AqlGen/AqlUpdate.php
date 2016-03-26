@@ -24,12 +24,14 @@ class AqlUpdate extends AbstractAql
     {
         $this->document = $document;
         $this->collection = $collection;
-        $this->changedAttributes = is_array($changedAttributes) ? json_encode($changedAttributes) : $changedAttributes;
+        $this->changedAttributes = $changedAttributes;
     }
 
     public function get()
     {
-        $this->normalizeDocument();
+        $this->document = $this->normalizeDocument($this->document);
+        $this->changedAttributes = $this->normalizeDocument($this->changedAttributes);
+
         $result = self::OPERATOR . " {$this->document} WITH {$this->changedAttributes} IN {$this->collection} ";
         return $result;
     }

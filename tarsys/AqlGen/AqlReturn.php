@@ -29,10 +29,7 @@ class AqlReturn extends AbstractAql
      */
     public function get()
     {
-        if (is_array($this->document)) {
-            $this->document = json_encode($this->document);
-        }
-
+        $this->document = $this->normalizeDocument($this->document);
         return self::OPERATOR . " {$this->document}";
     }
 }

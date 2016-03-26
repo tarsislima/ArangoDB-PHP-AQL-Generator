@@ -67,16 +67,23 @@ abstract class AbstractAql
         $this->params = array();
     }
 
-    protected function normalizeDocument()
+    protected function normalizeDocument($document)
     {
-        if (is_string($this->document)) {
-            $this->document = '"' . $this->document . '"';
+        //não precisa tratar quando for string
+        /*if (is_string($this->document)) {
+            //$this->document =  $this->document;
+        }*/
+
+        if (!is_array($document)) {
+            return $document;
         }
 
-        if (is_array($this->document)) {
-            $this->document = json_encode($this->document);
-            $this->document = $this->fixDocumentKeywords($this->document);
+        if (empty($document)) {
+            return '{}';
         }
+
+        $document = json_encode($document);
+        return $this->fixDocumentKeywords($document);
     }
 
     /**
@@ -85,6 +92,7 @@ abstract class AbstractAql
     protected function fixDocumentKeywords($document)
     {
         $reserved = array(
+            '"_id"' => '_id',
             '"_key"' => '_key',
             '"_rev"' => '_rev',
             '"NEW"' => 'NEW',
