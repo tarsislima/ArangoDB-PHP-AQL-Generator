@@ -152,6 +152,54 @@ echo $mainQuery->get();
   */
 ```
 
+* Result sorting
+
+```php
+
+$mainQuery = AqlGen::query('u', 'users')
+            ->sort('u.activity', AqlGen::SORT_DESC)
+            ->sort(array('u.name','u.created_date')); // asc by default
+
+echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       SORT u.activity DESC, u.name, u.created_date ASC
+    RETURN u
+  */
+```
+
+DATA MODIFICATIONS
+================================
+
+* Insert 
+
+```php
+
+$data = array(
+    "name" => "Paul",
+    "age" => 21
+)
+
+$query = AqlInsert::query('u', 'users', $data); 
+
+echo $mainQuery->get();
+
+ /* Generate this string: 
+    INSERT {"name": "Paul", "age": 21} IN users    
+  */
+
+//between collections
+$mainQuery = AqlGen::query('u', 'users')
+            ->insert('u', 'backup');
+
+echo $mainQuery->get();
+ 
+ /* Generate this string: 
+    FOR u IN users 
+       INSERT u IN backup
+  */
+```
 
 
 * Configuration
