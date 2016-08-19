@@ -201,7 +201,7 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    public function testReturnNotExistByDefaultInChangeOperations()
+    public function testReturnStatementNotExistByDefaultInChangeOperations()
     {
         $aql = AqlGen::query('u', 'users');
         $data = array(
@@ -211,7 +211,6 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
         $aql->insert($data, 'backup');
         $this->assertEquals("FOR u IN users\nINSERT {\"name\":\"Jhon\"} IN backup ", $aql->get());
 
-        //@todo testar para update e delete
     }
 
 
@@ -258,10 +257,32 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN users ", $aql->get());
 
-        //with no data
+        //update other collection
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == 0')
+            ->update($data, 'backup');
+
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN backup ", $aql->get());
+
+        //with options
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == 0')
+            ->update($data, 'users', array('waitForSync' => true));
+
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN users  OPTIONS {\"waitForSync\":true} ", $aql->get());
+
+        //with return
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == 0')
+            ->update($data)
+            ->setReturn('NEW');
+
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == 0\nUPDATE u WITH {\"status\":\"inactive\"} IN users RETURN NEW", $aql->get());
+
+        //without data
         $data = array();
         $aql = AqlGen::query('u', 'users')
-            ->update($data, 'u', 'users');
+            ->update($data, 'users');
 
         $this->assertEquals("FOR u IN users\nUPDATE u WITH {} IN users ", $aql->get());
     }
@@ -269,25 +290,26 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
     public function testReplaceOperation()
     {
         $data = array(
-            '_key' => AqlGen::expr('u._key'),
             'status' => 'active'
         );
 
         $aql = AqlGen::query('u', 'users')
             ->replace($data);
 
-        $this->assertEquals("FOR u IN users\nREPLACE {_key:u._key,\"status\":\"active\"} IN users ", $aql->get());
+        $this->assertEquals("FOR u IN users\nREPLACE u WITH {\"status\":\"active\"} IN users ", $aql->get());
 
         //replace in other collection
-        $data = array(
-            '_key' => AqlGen::expr('u._key'),
-            'status' => 'active'
-        );
 
         $aql = AqlGen::query('u', 'users')
             ->replace($data, 'backup');
 
-        $this->assertEquals("FOR u IN users\nREPLACE {_key:u._key,\"status\":\"active\"} IN backup ", $aql->get());
+        $this->assertEquals("FOR u IN users\nREPLACE u WITH {\"status\":\"active\"} IN backup ", $aql->get());
+
+        //options
+        $aql = AqlGen::query('u', 'users')
+            ->replace($data, null, array('waitForSync' => true));
+
+        $this->assertEquals("FOR u IN users\nREPLACE u WITH {\"status\":\"active\"} IN users  OPTIONS {\"waitForSync\":true} ", $aql->get());
     }
 
     public function testRemoveOperation()
@@ -305,6 +327,10 @@ class AqlGenTest extends \PHPUnit_Framework_TestCase
             ->remove('u', 'backup');
 
         $this->assertEquals("FOR u IN users\n\tFILTER u.status == deleted\nREMOVE u IN backup ", $aql->get());
+        $aql = AqlGen::query('u', 'users')
+            ->filter('u.status == deleted')
+            ->remove('u', 'backup', array('waitForSync' => true));
+        $this->assertEquals("FOR u IN users\n\tFILTER u.status == deleted\nREMOVE u IN backup  OPTIONS {\"waitForSync\":true} ", $aql->get());
     }
 
 

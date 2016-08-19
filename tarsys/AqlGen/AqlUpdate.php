@@ -4,10 +4,12 @@ namespace tarsys\AqlGen;
  * Class to implement UPDATE Operation
  *
  * @package tarsys\AqlGen
- * @author Vinicius Cruz
+ * @author Tarsis Lima
  */
 class AqlUpdate extends AbstractAql
 {
+    use OptionsTrait;
+
     const OPERATOR = 'UPDATE';
 
     protected $document;
@@ -29,10 +31,11 @@ class AqlUpdate extends AbstractAql
 
     public function get()
     {
-        $this->document = $this->normalizeDocument($this->document);
-        $this->changedAttributes = $this->normalizeDocument($this->changedAttributes);
+        $document = $this->normalizeDocument($this->document);
+        $changedAttributes = $this->normalizeDocument($this->changedAttributes);
 
-        $result = self::OPERATOR . " {$this->document} WITH {$this->changedAttributes} IN {$this->collection} ";
+        $result = self::OPERATOR . " {$document} WITH {$changedAttributes} IN {$this->collection} {$this->options}";
+
         return $result;
     }
 }

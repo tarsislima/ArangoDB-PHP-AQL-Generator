@@ -168,35 +168,6 @@ class AqlGen extends AbstractAql
         return $this;
     }
 
-    /**
-     * The mounted Aql query string
-     * @return string
-     */
-    public function get()
-    {
-        $query = $this->getForString();
-        $query .= $this->getInnerExpressionsString();
-        $query .= $this->getSortString();
-        $query .= $this->getLimitString();
-        $query .= $this->getChangeOperationString();
-        $query .= $this->getReturnString();
-
-        $query = $this->removeExpressionDelimiter($query);
-        return $query;
-    }
-
-    /**
-     * Remove quotes from expressions after json format was applied
-     *
-     * @param $query
-     * @return mixed
-     */
-    protected function removeExpressionDelimiter($query)
-    {
-        $query = str_replace('"' . self::EXPRESSION_DELIMITER, "", $query);
-        $query = str_replace(self::EXPRESSION_DELIMITER . '"', "", $query);
-        return $query;
-    }
 
     /**
      * Get expresions in order that are call
@@ -309,44 +280,44 @@ class AqlGen extends AbstractAql
      * @param $collection
      * @return $this
      */
-    public function insert($document, $collection)
+    public function insert($document, $collection, $options = null)
     {
         $this->changeOperation = new AqlInsert($document, $collection);
+        $this->changeOperation->setOptions($options);
         return $this;
     }
 
     /**
      * @param array $changedAttributes
-     * @param null $document
      * @param null $collection
+     * @param null $options
      * @return $this
      */
-    public function update(array $changedAttributes, $document = null, $collection = null)
+    public function update(array $changedAttributes, $collection = null, $options = null)
     {
-        if (is_null($document)) {
-            $document = $this->document;
-        }
-
         if (is_null($collection)) {
             $collection = $this->collection;
         }
-        $this->changeOperation = new AqlUpdate($document, $changedAttributes, $collection);
+
+        $this->changeOperation = new AqlUpdate($this->document, $changedAttributes, $collection);
+        $this->changeOperation->setOptions($options);
+
         return $this;
     }
 
     /**
-     * @param $document
+     * @param $changedAttributes
      * @param null $collection
      * @param array|null $options
      * @return $this
      */
-    public function replace($document, $collection = null, array $options = null)
+    public function replace(array $changedAttributes, $collection = null, array $options = null)
     {
         if (is_null($collection)) {
             $collection = $this->collection;
         }
-
-        $this->changeOperation = new AqlReplace($document, $collection, $options);
+        $this->changeOperation = new AqlReplace($this->document, $changedAttributes, $collection);
+        $this->changeOperation->setOptions($options);
         return $this;
     }
 
@@ -355,7 +326,7 @@ class AqlGen extends AbstractAql
      * @param null $collection
      * @return $this
      */
-    public function remove($document = null, $collection = null)
+    public function remove($document = null, $collection = null, $options = null)
     {
         if (is_null($document)) {
             $document = $this->document;
@@ -366,6 +337,7 @@ class AqlGen extends AbstractAql
         }
 
         $this->changeOperation = new AqlRemove($document, $collection);
+        $this->changeOperation->setOptions($options);
         return $this;
     }
 
@@ -388,18 +360,6 @@ class AqlGen extends AbstractAql
         $return = $document . " {$with} IN " . $collection;
         return $this->setOperationReturn($return);
     }
-
-    /**
-     * check if the Operation is valid
-     * @return $this
-     */
-    /*  private function checkOperationReturn()
-      {
-          if ($this->isSubQuery == true && !$this->return instanceof AqlReturn) {
-              throw new InvalidArgumentException("A subquery not should have a {$this->operation} operation.");
-          }
-          return $this;
-      }*/
 
     /**
      * Set if RETURN operator is required. Optional only in subqueries
@@ -463,5 +423,24 @@ class AqlGen extends AbstractAql
     public function __toString()
     {
         return $this->get();
+    }
+
+
+    /**
+     * The mounted Aql query string
+     * @return string
+     */
+    public function get()
+    {
+        $query = $this->getForString();
+        $query .= $this->getInnerExpressionsString();
+        $query .= $this->getSortString();
+        $query .= $this->getLimitString();
+        $query .= $this->getChangeOperationString();
+        $query .= $this->getReturnString();
+
+        $query = $this->removeExpressionDelimiter($query);
+
+        return $query;
     }
 }

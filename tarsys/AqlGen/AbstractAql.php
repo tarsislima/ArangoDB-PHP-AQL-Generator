@@ -69,11 +69,6 @@ abstract class AbstractAql
 
     protected function normalizeDocument($document)
     {
-        //não precisa tratar quando for string
-        /*if (is_string($this->document)) {
-            //$this->document =  $this->document;
-        }*/
-
         if (!is_array($document)) {
             return $document;
         }
@@ -83,11 +78,12 @@ abstract class AbstractAql
         }
 
         $document = json_encode($document);
+        $document = $this->removeExpressionDelimiter($document);
         return $this->fixDocumentKeywords($document);
     }
 
     /**
-     * remove quotation marks of reserved words in documents string
+     * remove quotation marks of reserved words and expressions in documents string
      */
     protected function fixDocumentKeywords($document)
     {
@@ -95,6 +91,8 @@ abstract class AbstractAql
             '"_id"' => '_id',
             '"_key"' => '_key',
             '"_rev"' => '_rev',
+            '"_from"' => '_from',
+            '"_to"' => '_to',
             '"NEW"' => 'NEW',
             '"OLD"' => 'OLD',
             '"NEW._key"' => 'NEW._key',
@@ -102,5 +100,18 @@ abstract class AbstractAql
         );
 
         return str_replace(array_keys($reserved), array_values($reserved), $document);
+    }
+
+    /**
+     * Remove quotes from expressions after json format was applied
+     *
+     * @param $query
+     * @return mixed
+     */
+    protected function removeExpressionDelimiter($query)
+    {
+        $query = str_replace('"' . self::EXPRESSION_DELIMITER, "", $query);
+        $query = str_replace(self::EXPRESSION_DELIMITER . '"', "", $query);
+        return $query;
     }
 }

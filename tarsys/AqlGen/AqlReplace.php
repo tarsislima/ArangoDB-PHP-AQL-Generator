@@ -5,43 +5,39 @@ namespace tarsys\AqlGen;
 /**
  * Class to implement REPLACE Operation
  *
+ * !! This Operation have the same sintax that Update Operation.
+ *  only Operator name is not equal. @todo  refactory
+ *
  * @author Tarsis Lima
  */
-class AqlReplace extends AbstractAql
+class AqlReplace extends AqlUpdate
 {
     const OPERATOR = 'REPLACE';
 
     protected $document;
     protected $collection;
-    protected $options;
+    protected $changedAttributes;
 
     /**
-     * AqlReplace constructor.
-     * @param array|string $document
-     * @param string $collection
-     * @param array|null $options
+     * AqlUpdate constructor.
+     * @param $document
+     * @param $changedAttributes
+     * @param $collection
      */
-    public function __construct($document, $collection, array $options = null)
+    public function __construct($document, $changedAttributes, $collection)
     {
         $this->document = $document;
         $this->collection = $collection;
-        $this->options = $options;
+        $this->changedAttributes = $changedAttributes;
     }
 
-    /**
-     * @return string
-     */
     public function get()
     {
-        $this->document = $this->normalizeDocument($this->document);
+        $document = $this->normalizeDocument($this->document);
+        $changedAttributes = $this->normalizeDocument($this->changedAttributes);
 
-        if (is_array($this->options)) {
-            $this->options = json_encode($this->options);
-        }
-        $result = self::OPERATOR . " {$this->document} IN {$this->collection}";
-        if (!empty($this->options)) {
-            $result .= " OPTIONS " . $this->options;
-        }
-        return $result . " ";
+        $result = self::OPERATOR . " {$document} WITH {$changedAttributes} IN {$this->collection} {$this->options}";
+
+        return $result;
     }
 }

@@ -9,6 +9,8 @@ namespace tarsys\AqlGen;
  */
 class AqlInsert extends AbstractAql
 {
+    use OptionsTrait;
+
     const OPERATOR = 'INSERT';
 
     protected $document;
@@ -31,7 +33,7 @@ class AqlInsert extends AbstractAql
     public function get()
     {
         $this->document = $this->normalizeDocument($this->document);
-        $result = self::OPERATOR . " {$this->document} IN {$this->collection} ";
+        $result = self::OPERATOR . " {$this->document} IN {$this->collection} {$this->options}";
         return $result;
     }
 }

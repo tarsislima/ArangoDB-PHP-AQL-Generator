@@ -4,26 +4,33 @@ namespace tests\tarsys;
 
 use PHPUnit_Framework_TestCase;
 use tarsys\AqlGen\AqlRemove;
-use tarsys\AqlGen\AqlReplace;
 
 class AqlRemoveTest extends PHPUnit_Framework_TestCase
 {
-
     public function testRemoveExpressionByString()
     {
-        $data = 'Gilbert';
+        $data = 'k1';
 
         $aql = new AqlRemove($data, 'users');
-        $this->assertEquals('REMOVE "Gilbert" IN users ', $aql->get());
+        $this->assertEquals('REMOVE k1 IN users ', $aql->get());
+    }
+
+    public function testRemoveWithOptions()
+    {
+        $data = 'k1';
+
+        $aql = new AqlRemove($data, 'users');
+        $aql->setOptions(array('waitForSync' => true));
+        $this->assertEquals('REMOVE k1 IN users  OPTIONS {"waitForSync":true} ', $aql->get());
     }
 
     public function testRemoveExpressionByArray()
     {
         $data = array(
-            '_key' => 'Gilbert'
+            '_key' => 'k1'
         );
 
         $aql = new AqlRemove($data, 'users');
-        $this->assertEquals('REMOVE {_key:"Gilbert"} IN users ', $aql->get());
+        $this->assertEquals('REMOVE {_key:"k1"} IN users ', $aql->get());
     }
 }

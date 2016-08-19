@@ -9,6 +9,8 @@ namespace tarsys\AqlGen;
  */
 class AqlRemove extends AbstractAql
 {
+    use OptionsTrait;
+
     const OPERATOR = 'REMOVE';
 
     protected $document;
@@ -26,6 +28,7 @@ class AqlRemove extends AbstractAql
         $this->collection = $collection;
     }
 
+
     /**
      * @return string
      */
@@ -33,7 +36,8 @@ class AqlRemove extends AbstractAql
     {
         $this->document = $this->normalizeDocument($this->document);
 
-        $result = self::OPERATOR . " {$this->document} IN {$this->collection} ";
+        $result = self::OPERATOR . " {$this->document} IN {$this->collection} {$this->options}";
+
         return $result;
     }
 }
